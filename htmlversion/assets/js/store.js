@@ -199,6 +199,44 @@ const DEFAULT_BOOKS = [
     },
     {
         id: 10,
+        judul: 'Sejarah Nusantara: Dari Sriwijaya hingga Kemerdekaan',
+        slug: 'sejarah-nusantara',
+        penulis: 'Prof. Dr. Sartono Kartodirdjo',
+        penerbit: 'Balai Pustaka',
+        tahun_terbit: 2019,
+        isbn: '978-9794073345',
+        kategori_id: 5,
+        kategori_slug: 'sejarah-budaya',
+        kategori_nama: 'Sejarah & Budaya',
+        harga: 88000,
+        stok: 5,
+        cover: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=600&q=80',
+        lokasi_rak: 'Rak F-01',
+        deskripsi: 'Ulasan mendalam mengenai jalur rempah, kerajaan maritim, masa kolonialisme hingga perjuangan bangsa Indonesia.',
+        rating: 4.8,
+        total_ulasan: 1
+    },
+    {
+        id: 11,
+        judul: 'Desain Grafis & UI/UX untuk Pemula',
+        slug: 'desain-grafis-ui-ux-pemula',
+        penulis: 'Don Norman',
+        penerbit: 'Informatika Bandung',
+        tahun_terbit: 2024,
+        isbn: '978-6026232987',
+        kategori_id: 1,
+        kategori_slug: 'teknologi-pemrograman',
+        kategori_nama: 'Teknologi & Pemrograman',
+        harga: 95000,
+        stok: 9,
+        cover: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=600&q=80',
+        lokasi_rak: 'Rak A-03',
+        deskripsi: 'Panduan lengkap prinsip desain antarmuka, tipografi, teori warna, user persona, wireframing, dan usability testing.',
+        rating: 4.7,
+        total_ulasan: 2
+    },
+    {
+        id: 12,
         judul: 'Laut Bercerita',
         slug: 'laut-bercerita',
         penulis: 'Leila S. Chudori',
@@ -336,16 +374,15 @@ const DEFAULT_MESSAGES = [
     }
 ];
 
-const DEFAULT_CART = [
-    { buku_id: 2, jumlah: 1 }
-];
+const DEFAULT_CART = [];
 
-const DEFAULT_FAVORITES = [1, 2, 8];
+const DEFAULT_FAVORITES = [];
 
 // Store API
 const Store = {
     init() {
-        if (!localStorage.getItem(STORAGE_KEYS.BOOKS)) {
+        const savedBooks = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKS) || '[]');
+        if (!savedBooks || savedBooks.length < 12) {
             localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(DEFAULT_BOOKS));
         }
         if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
@@ -354,9 +391,10 @@ const Store = {
         if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
             localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
         }
-        if (!localStorage.getItem(STORAGE_KEYS.USER)) {
-            // Default logged in as Budi (peminjam)
-            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(DEFAULT_USERS[1]));
+        // Pastikan sesi tamu bersih jika tidak ada login
+        const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
+        if (savedUser === 'null' || savedUser === 'undefined') {
+            localStorage.removeItem(STORAGE_KEYS.USER);
         }
         if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
             localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(DEFAULT_ORDERS));
@@ -376,7 +414,13 @@ const Store = {
     },
 
     getCurrentUser() {
-        return JSON.parse(localStorage.getItem(STORAGE_KEYS.USER) || 'null');
+        const u = localStorage.getItem(STORAGE_KEYS.USER);
+        if (!u || u === 'null' || u === 'undefined') return null;
+        try {
+            return JSON.parse(u);
+        } catch (e) {
+            return null;
+        }
     },
 
     setCurrentUser(user) {
@@ -420,6 +464,16 @@ const Store = {
     },
 
     addToCart(bookId, qty = 1) {
+        const user = this.getCurrentUser();
+        if (!user) {
+            this.toast('Silakan masuk ke akun anggota terlebih dahulu untuk berbelanja.', 'error');
+            setTimeout(() => window.location.href = 'login.html', 800);
+            return false;
+        }
+        if (user.role === 'admin') {
+            this.toast('Akun Administrator tidak dapat berbelanja buku.', 'error');
+            return false;
+        }
         let cart = this.getCart();
         const existing = cart.find(item => item.buku_id == bookId);
         const book = this.getBookById(bookId);
@@ -529,7 +583,16 @@ const Store = {
     borrowBook(bookId, durationDays = 7, catatan = '') {
         const book = this.getBookById(bookId);
         const user = this.getCurrentUser();
-        if (!book || !user) return null;
+        if (!user) {
+            this.toast('Silakan masuk ke akun anggota terlebih dahulu untuk meminjam buku.', 'error');
+            setTimeout(() => window.location.href = 'login.html', 800);
+            return null;
+        }
+        if (user.role === 'admin') {
+            this.toast('Hanya anggota/siswa yang dapat meminjam buku.', 'error');
+            return null;
+        }
+        if (!book) return null;
 
         const borrowings = this.getBorrowings();
         const now = new Date();
@@ -607,6 +670,16 @@ const Store = {
     },
 
     toggleFavorite(bookId) {
+        const user = this.getCurrentUser();
+        if (!user) {
+            this.toast('Silakan masuk ke akun anggota terlebih dahulu.', 'error');
+            setTimeout(() => window.location.href = 'login.html', 800);
+            return false;
+        }
+        if (user.role === 'admin') {
+            this.toast('Hanya anggota yang dapat menambahkan koleksi favorit.', 'error');
+            return false;
+        }
         let favs = this.getFavorites();
         const id = Number(bookId);
         if (favs.includes(id)) {

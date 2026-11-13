@@ -209,6 +209,13 @@
             renderHeader('cart');
             renderFooter();
 
+            const user = Store.getCurrentUser();
+            if (!user) {
+                Store.toast('Silakan masuk ke akun anggota terlebih dahulu untuk checkout.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 600);
+                return;
+            }
+
             const items = Store.getCartDetailed();
             if (items.length === 0) {
                 Store.toast('Keranjang belanja Anda masih kosong.', 'info');
@@ -216,7 +223,6 @@
                 return;
             }
 
-            const user = Store.getCurrentUser() || {};
             document.getElementById('nama_penerima').value = user.name || '';
             document.getElementById('no_telepon').value = user.no_telepon || '';
             document.getElementById('alamat_pengiriman').value = user.alamat || '';

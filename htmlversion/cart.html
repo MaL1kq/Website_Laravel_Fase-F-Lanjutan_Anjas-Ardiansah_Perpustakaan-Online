@@ -156,12 +156,36 @@
         });
 
         function renderCartPage() {
+            const user = Store.getCurrentUser();
+            const contentEl = document.getElementById('cart-content');
+            const emptyEl = document.getElementById('cart-empty');
+
+            if (!user) {
+                contentEl.classList.add('hidden');
+                emptyEl.classList.remove('hidden');
+                emptyEl.innerHTML = `
+                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 text-3xl mx-auto mb-4">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900">Silakan Masuk Terlebih Dahulu</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+                        Keranjang belanja dikhususkan untuk anggota perpustakaan yang telah masuk ke akun.
+                    </p>
+                    <div class="mt-6 flex justify-center space-x-3">
+                        <a href="login.html" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition">
+                            Masuk ke Akun
+                        </a>
+                        <a href="katalog.html" class="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                            Katalog Buku
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
             const items = Store.getCartDetailed();
             const total = Store.getCartTotal();
             const count = Store.getCartCount();
-
-            const contentEl = document.getElementById('cart-content');
-            const emptyEl = document.getElementById('cart-empty');
 
             if (items.length === 0) {
                 contentEl.classList.add('hidden');

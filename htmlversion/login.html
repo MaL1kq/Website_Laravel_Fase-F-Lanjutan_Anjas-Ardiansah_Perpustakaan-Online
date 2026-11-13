@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk ke PerpusDigital - Sistem Perpustakaan & BookStore</title>
+    <title>Masuk ke PerpusDigital - Perpustakaan Online Modern</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,18 +39,20 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased">
 
+    <!-- Global Header -->
     <div id="global-header"></div>
 
+    <!-- Main Content (Persis Laravel) -->
     <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6">
         <div class="max-w-md w-full">
-            <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8 sm:p-10">
+            <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8">
                 <!-- Logo & Header -->
                 <div class="text-center mb-8">
                     <div class="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-indigo-200 mb-3">
                         <i class="fa-solid fa-book-bookmark"></i>
                     </div>
                     <h2 class="text-2xl font-bold text-slate-900">Selamat Datang</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Masuk ke akun Perpustakaan & BookStore Anda</p>
+                    <p class="text-sm text-slate-500 mt-1">Masuk ke akun Perpustakaan Digital Anda</p>
                 </div>
 
                 <!-- Form Login -->
@@ -61,7 +63,7 @@
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                                 <i class="fa-solid fa-user text-sm"></i>
                             </span>
-                            <input type="text" id="login" required autocomplete="username"
+                            <input type="text" id="login" required autofocus autocomplete="username"
                                 class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
                                 placeholder="Contoh: admin atau budi@perpus.test">
                         </div>
@@ -86,7 +88,7 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md shadow-indigo-200 transition flex items-center justify-center">
+                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md shadow-indigo-200 transition duration-150 flex items-center justify-center">
                         <span>Masuk Sekarang</span>
                         <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
                     </button>
@@ -98,26 +100,62 @@
                     <a href="register.html" class="font-bold text-indigo-600 hover:text-indigo-800 transition">Daftar sekarang</a>
                 </p>
             </div>
+
+            <!-- Akun Demo Cepat (Pra-USK RPL) -->
+            <div class="mt-6 bg-slate-100/90 rounded-2xl p-4 border border-slate-200/80">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 text-center mb-2.5">
+                    <i class="fa-solid fa-bolt text-amber-500 mr-1"></i> Akun Demo Uji Pra-USK (Klik 1x untuk Masuk):
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button type="button" onclick="quickLogin('admin')" class="px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold rounded-xl border border-purple-200 text-left flex items-center justify-between transition">
+                        <span><i class="fa-solid fa-shield-halved mr-1.5"></i> Admin Utama</span>
+                        <span class="text-[10px] font-normal text-purple-500">admin</span>
+                    </button>
+                    <button type="button" onclick="quickLogin('budi')" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200 text-left flex items-center justify-between transition">
+                        <span><i class="fa-solid fa-user-graduate mr-1.5"></i> Budi (Anggota)</span>
+                        <span class="text-[10px] font-normal text-emerald-500">budi</span>
+                    </button>
+                    <button type="button" onclick="quickLogin('siti')" class="px-3 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold rounded-xl border border-sky-200 text-left flex items-center justify-between transition sm:col-span-2">
+                        <span><i class="fa-solid fa-user-graduate mr-1.5"></i> Siti Nurhaliza (Anggota)</span>
+                        <span class="text-[10px] font-normal text-sky-500">siti</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </main>
 
+    <!-- Global Footer -->
     <div id="global-footer"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            renderHeader('');
-            renderFooter();
+            renderHeader('login');
+            renderFooter('login');
         });
 
-        function fillAndLogin(userLogin, pass, role) {
-            document.getElementById('login').value = userLogin;
-            document.getElementById('password').value = pass;
-            setDemoUser(role);
+        function quickLogin(who) {
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            let user = users.find(u => u.username === who);
+            if (!user && who === 'admin') user = users.find(u => u.role === 'admin');
+            if (!user && who === 'budi') user = users.find(u => u.role === 'peminjam');
+
+            if (user) {
+                Store.setCurrentUser(user);
+                Store.toast(`Berhasil masuk sebagai ${user.name}!`, 'success');
+                setTimeout(() => {
+                    if (user.role === 'admin') {
+                        window.location.href = 'admin/index.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 300);
+            }
         }
 
         function handleLoginSubmit(e) {
             e.preventDefault();
             const val = document.getElementById('login').value.toLowerCase().trim();
+            const pass = document.getElementById('password').value.trim();
             const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
 
             let user = users.find(u => u.username.toLowerCase() === val || u.email.toLowerCase() === val);
@@ -125,8 +163,8 @@
             if (!user) {
                 if (val.includes('admin')) {
                     user = users.find(u => u.role === 'admin');
-                } else {
-                    user = users.find(u => u.role === 'peminjam');
+                } else if (val.includes('budi') || val.includes('siti') || val.includes('andi')) {
+                    user = users.find(u => u.username.toLowerCase() === val || u.name.toLowerCase().includes(val));
                 }
             }
 
@@ -139,7 +177,7 @@
                     } else {
                         window.location.href = 'index.html';
                     }
-                }, 400);
+                }, 300);
             } else {
                 Store.toast('Username atau password tidak ditemukan.', 'error');
             }

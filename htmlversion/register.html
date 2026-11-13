@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun Anggota - PerpusDigital</title>
+    <title>Pendaftaran Anggota Baru - PerpusDigital</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,63 +39,78 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased">
 
+    <!-- Global Header -->
     <div id="global-header"></div>
 
-    <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6">
-        <div class="max-w-xl w-full">
-            <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8 sm:p-10">
-                <div class="text-center mb-8">
+    <!-- Main Content (Persis Laravel) -->
+    <main class="flex-grow flex items-center justify-center py-10 px-4 sm:px-6">
+        <div class="max-w-lg w-full">
+            <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8">
+                <!-- Logo & Header -->
+                <div class="text-center mb-6">
                     <div class="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-indigo-200 mb-3">
                         <i class="fa-solid fa-user-plus"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-900">Pendaftaran Anggota Baru</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Daftarkan akun untuk meminjam dan membeli buku di PerpusDigital</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Daftar Anggota</h2>
+                    <p class="text-sm text-slate-500 mt-1">Buat akun untuk meminjam buku secara online</p>
                 </div>
 
                 <form id="register-form" onsubmit="handleRegisterSubmit(event)" class="space-y-4">
+                    <div>
+                        <label for="reg-name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Nama Lengkap</label>
+                        <input type="text" id="reg-name" required
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                            placeholder="Contoh: Ahmad Fauzi">
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Nama Lengkap</label>
-                            <input type="text" id="reg-name" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Nama Lengkap Anda">
+                            <label for="reg-username" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Username</label>
+                            <input type="text" id="reg-username" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                                placeholder="ahmad123">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Username</label>
-                            <input type="text" id="reg-username" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="username_siswa">
+                            <label for="reg-email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Email</label>
+                            <input type="email" id="reg-email" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                                placeholder="ahmad@gmail.com">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Email</label>
-                            <input type="email" id="reg-email" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="nama@email.com">
+                            <label for="reg-pass" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Kata Sandi</label>
+                            <input type="password" id="reg-pass" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                                placeholder="Min. 6 karakter">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">No. Telepon / WhatsApp</label>
-                            <input type="text" id="reg-telepon" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="08xxxxxxxxxx">
+                            <label for="reg-pass-confirm" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Ulangi Sandi</label>
+                            <input type="password" id="reg-pass-confirm" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                                placeholder="Ulangi kata sandi">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Alamat Tempat Tinggal</label>
-                        <textarea id="reg-alamat" rows="2" required class="w-full p-3 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Alamat lengkap..."></textarea>
+                        <label for="reg-telepon" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">No. WhatsApp / HP</label>
+                        <input type="text" id="reg-telepon"
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                            placeholder="081234567890">
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Kata Sandi</label>
-                            <input type="password" id="reg-pass" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Minimal 6 karakter">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Konfirmasi Sandi</label>
-                            <input type="password" id="reg-pass-confirm" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Ulangi kata sandi">
-                        </div>
+                    <div>
+                        <label for="reg-alamat" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Alamat Rumah</label>
+                        <textarea id="reg-alamat" rows="2"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                            placeholder="Jl. Melati No. 5..."></textarea>
                     </div>
 
-                    <div class="pt-2">
-                        <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition">
-                            Daftar Sekarang
-                        </button>
-                    </div>
+                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md shadow-indigo-200 transition duration-150 flex items-center justify-center mt-2">
+                        <span>Daftar Akun Sekarang</span>
+                        <i class="fa-solid fa-user-check ml-2 text-xs"></i>
+                    </button>
                 </form>
 
                 <p class="text-center text-xs text-slate-500 mt-6">
@@ -106,21 +121,22 @@
         </div>
     </main>
 
+    <!-- Global Footer -->
     <div id="global-footer"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            renderHeader('');
-            renderFooter();
+            renderHeader('register');
+            renderFooter('register');
         });
 
         function handleRegisterSubmit(e) {
             e.preventDefault();
-            const name = document.getElementById('reg-name').value;
-            const username = document.getElementById('reg-username').value;
-            const email = document.getElementById('reg-email').value;
-            const telepon = document.getElementById('reg-telepon').value;
-            const alamat = document.getElementById('reg-alamat').value;
+            const name = document.getElementById('reg-name').value.trim();
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const telepon = document.getElementById('reg-telepon').value.trim();
+            const alamat = document.getElementById('reg-alamat').value.trim();
             const pass = document.getElementById('reg-pass').value;
             const passConfirm = document.getElementById('reg-pass-confirm').value;
 
@@ -130,6 +146,12 @@
             }
 
             const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const existing = users.find(u => u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === email.toLowerCase());
+            if (existing) {
+                Store.toast('Username atau email sudah digunakan!', 'error');
+                return;
+            }
+
             const newUser = {
                 id: Date.now(),
                 name,
@@ -144,10 +166,10 @@
             localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
             Store.setCurrentUser(newUser);
 
-            Store.toast('Pendaftaran akun berhasil!', 'success');
+            Store.toast(`Pendaftaran berhasil! Selamat datang, ${name}.`, 'success');
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 500);
+            }, 400);
         }
     </script>
 </body>

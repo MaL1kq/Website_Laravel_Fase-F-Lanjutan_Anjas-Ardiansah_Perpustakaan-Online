@@ -169,9 +169,30 @@
         });
 
         function renderOrders() {
+            const user = Store.getCurrentUser();
             const container = document.getElementById('orders-list-container');
             const emptyEl = document.getElementById('orders-empty');
-            const orders = Store.getOrders();
+
+            if (!user) {
+                container.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                emptyEl.innerHTML = `
+                    <div class="w-20 h-20 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl mx-auto mb-4">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-slate-900">Silakan Masuk Terlebih Dahulu</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Riwayat pesanan buku hanya dapat diakses oleh anggota yang telah masuk ke akun.
+                    </p>
+                    <a href="login.html" class="inline-flex items-center mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-200 transition">
+                        <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk ke Akun
+                    </a>
+                `;
+                return;
+            }
+
+            const allOrders = Store.getOrders();
+            const orders = allOrders.filter(o => o.user_id == user.id);
 
             if (orders.length === 0) {
                 container.innerHTML = '';
