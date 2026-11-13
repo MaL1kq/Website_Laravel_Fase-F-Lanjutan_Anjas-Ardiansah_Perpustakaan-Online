@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout & Pembayaran Buku - PerpusDigital</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased">
+
+    <div id="global-header"></div>
+
+    <main class="flex-grow">
+        <!-- Banner Title -->
+        <div class="bg-indigo-900/5 border-b border-indigo-100 py-8">
+            <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-credit-card text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Checkout & Pembayaran</h1>
+                        <p class="text-sm text-slate-500 mt-0.5">Lengkapi informasi pengiriman buku dan pilih metode pembayaran favorit Anda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-10">
+            <form id="checkout-form" onsubmit="handleProcessCheckout(event)">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Left Side: Shipping & Payment Form -->
+                    <div class="lg:col-span-8 space-y-6">
+                        <!-- Section 1: Alamat Pengiriman -->
+                        <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center mb-6">
+                                <span class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs mr-3">1</span>
+                                Informasi Penerima & Alamat Pengiriman
+                            </h2>
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="nama_penerima" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                            Nama Lengkap Penerima <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="text" id="nama_penerima" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500" placeholder="Nama penerima paket">
+                                    </div>
+
+                                    <div>
+                                        <label for="no_telepon" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                            No. Telepon / WhatsApp <span class="text-rose-500">*</span>
+                                        </label>
+                                        <input type="text" id="no_telepon" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: 081234567890">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="alamat_pengiriman" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                        Alamat Lengkap Pengiriman <span class="text-rose-500">*</span>
+                                    </label>
+                                    <textarea id="alamat_pengiriman" rows="3" required class="w-full p-4 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500" placeholder="Tuliskan nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan, dan kota/kabupaten..."></textarea>
+                                </div>
+
+                                <div>
+                                    <label for="catatan" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                        Catatan untuk Penjual / Kurir (Opsional)
+                                    </label>
+                                    <input type="text" id="catatan" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Titipkan di pos satpam jika tidak ada orang.">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Metode Pembayaran -->
+                        <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm" x-data="{ selectedMethod: 'Payment at Delivery (Pembayaran sebelum dikirim)' }">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center mb-6">
+                                <span class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs mr-3">2</span>
+                                Pilih Metode Pembayaran
+                            </h2>
+
+                            <div class="space-y-3">
+                                <!-- Option BNSP: Payment at Delivery -->
+                                <label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition"
+                                    :class="selectedMethod === 'Payment at Delivery (Pembayaran sebelum dikirim)' ? 'border-indigo-600 bg-indigo-50/70 shadow-sm ring-2 ring-indigo-500/20' : 'border-slate-200 hover:border-slate-300'">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="radio" name="metode_pembayaran" value="Payment at Delivery (Pembayaran sebelum dikirim)" x-model="selectedMethod" class="text-indigo-600 focus:ring-indigo-500">
+                                        <div>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="font-bold text-sm text-slate-900">Payment at Delivery (Pembayaran Sebelum Buku Dikirim)</span>
+                                                <span class="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">Standar BNSP</span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-0.5">Pembeli melakukan konfirmasi pembayaran terlebih dahulu kepada Administrator sebelum paket buku diserahkan ke jasa kirim.</p>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-truck-ramp-box text-xl text-indigo-600"></i>
+                                </label>
+
+                                <!-- Option: Transfer Bank BCA -->
+                                <label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition"
+                                    :class="selectedMethod === 'Transfer Bank BCA' ? 'border-indigo-600 bg-indigo-50/70 shadow-sm ring-2 ring-indigo-500/20' : 'border-slate-200 hover:border-slate-300'">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="radio" name="metode_pembayaran" value="Transfer Bank BCA" x-model="selectedMethod" class="text-indigo-600 focus:ring-indigo-500">
+                                        <div>
+                                            <span class="font-bold text-sm text-slate-900">Transfer Bank BCA (Virtual Account)</span>
+                                            <p class="text-xs text-slate-500 mt-0.5">No. Rek: 1234-5678-90 a.n. PerpusDigital BookStore</p>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-building-columns text-xl text-slate-400"></i>
+                                </label>
+
+                                <!-- Option: QRIS -->
+                                <label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition"
+                                    :class="selectedMethod === 'QRIS' ? 'border-indigo-600 bg-indigo-50/70 shadow-sm ring-2 ring-indigo-500/20' : 'border-slate-200 hover:border-slate-300'">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="radio" name="metode_pembayaran" value="QRIS" x-model="selectedMethod" class="text-indigo-600 focus:ring-indigo-500">
+                                        <div>
+                                            <span class="font-bold text-sm text-slate-900">QRIS (GoPay, OVO, Dana, ShopeePay)</span>
+                                            <p class="text-xs text-slate-500 mt-0.5">Scan kode QR instan dari semua aplikasi e-wallet</p>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-qrcode text-xl text-slate-400"></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Order Summary -->
+                    <div class="lg:col-span-4">
+                        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm sticky top-24 space-y-5">
+                            <h2 class="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">Ringkasan Pesanan</h2>
+
+                            <!-- Item List Preview -->
+                            <div id="checkout-items-preview" class="space-y-3 max-h-60 overflow-y-auto divide-y divide-slate-100 pr-1">
+                                <!-- Injected by JS -->
+                            </div>
+
+                            <div class="space-y-2.5 pt-3 border-t border-slate-100 text-xs sm:text-sm">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Subtotal Produk</span>
+                                    <span id="checkout-subtotal" class="font-bold text-slate-900">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Ongkos Kirim</span>
+                                    <span class="font-bold text-emerald-600 uppercase">Gratis (Promo)</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Biaya Layanan</span>
+                                    <span class="font-bold text-slate-900">Rp 0</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-100">
+                                <div class="flex justify-between items-baseline mb-4">
+                                    <span class="text-sm font-bold text-slate-900">Total Pembayaran</span>
+                                    <span id="checkout-total" class="text-xl font-black text-indigo-600">Rp 0</span>
+                                </div>
+
+                                <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-200 transition flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span>Konfirmasi & Buat Pesanan</span>
+                                </button>
+                            </div>
+
+                            <p class="text-[11px] text-center text-slate-400">
+                                Dengan memesan, Anda menyetujui ketentuan pemesanan buku fisik original di PerpusDigital BookStore.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <div id="global-footer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHeader('cart');
+            renderFooter();
+
+            const items = Store.getCartDetailed();
+            if (items.length === 0) {
+                Store.toast('Keranjang belanja Anda masih kosong.', 'info');
+                setTimeout(() => window.location.href = 'katalog.html', 800);
+                return;
+            }
+
+            const user = Store.getCurrentUser() || {};
+            document.getElementById('nama_penerima').value = user.name || '';
+            document.getElementById('no_telepon').value = user.no_telepon || '';
+            document.getElementById('alamat_pengiriman').value = user.alamat || '';
+
+            const total = Store.getCartTotal();
+            document.getElementById('checkout-subtotal').innerText = Store.formatRupiah(total);
+            document.getElementById('checkout-total').innerText = Store.formatRupiah(total);
+
+            const preview = document.getElementById('checkout-items-preview');
+            preview.innerHTML = items.map(item => `
+                <div class="flex items-center space-x-3 pt-2">
+                    <img src="${item.buku.cover}" alt="${item.buku.judul}" class="w-10 h-14 object-cover rounded-lg flex-shrink-0 bg-slate-100">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-slate-900 truncate">${item.buku.judul}</p>
+                        <p class="text-[11px] text-slate-500">${item.jumlah} x ${Store.formatRupiah(item.buku.harga)}</p>
+                    </div>
+                    <span class="text-xs font-extrabold text-slate-800">${Store.formatRupiah(item.subtotal)}</span>
+                </div>
+            `).join('');
+        });
+
+        function handleProcessCheckout(e) {
+            e.preventDefault();
+            const user = Store.getCurrentUser();
+            if (!user) {
+                Store.toast('Silakan masuk ke akun terlebih dahulu.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 1000);
+                return;
+            }
+
+            const items = Store.getCartDetailed();
+            const total = Store.getCartTotal();
+
+            const nama_penerima = document.getElementById('nama_penerima').value;
+            const no_telepon = document.getElementById('no_telepon').value;
+            const alamat_pengiriman = document.getElementById('alamat_pengiriman').value;
+            const catatan = document.getElementById('catatan').value;
+            const selectedRadio = document.querySelector('input[name="metode_pembayaran"]:checked');
+            const metode_pembayaran = selectedRadio ? selectedRadio.value : 'Payment at Delivery (Pembayaran sebelum dikirim)';
+
+            const orderItems = items.map(i => ({
+                buku_id: i.buku.id,
+                judul: i.buku.judul,
+                cover: i.buku.cover,
+                jumlah: i.jumlah,
+                harga_satuan: i.buku.harga,
+                subtotal: i.subtotal
+            }));
+
+            const created = Store.createOrder({
+                user_id: user.id,
+                nama_penerima,
+                no_telepon,
+                alamat_pengiriman,
+                catatan,
+                metode_pembayaran,
+                total_harga: total,
+                items: orderItems
+            });
+
+            Store.toast(`Pesanan ${created.kode_pesanan} berhasil dibuat!`, 'success');
+            setTimeout(() => {
+                window.location.href = 'riwayat-pesanan.html';
+            }, 600);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesan Masuk (Contact to Admin) - Panel Administrator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="../assets/js/store.js"></script>
+    <script src="../assets/js/admin-layout.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none !important; }
+        .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, modalReply: false, activeMsg: null }">
+
+    <div id="admin-sidebar-container"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div id="admin-topbar-container"></div>
+
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="space-y-6">
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900">Pesan Masuk (Contact to Admin)</h1>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Daftar pesan, pertanyaan stok buku, dan konfirmasi pembayaran dari pengguna (Standar Uji BNSP BookStore).
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-100">
+                                <tr>
+                                    <th class="py-4 px-6">Pengirim</th>
+                                    <th class="py-4 px-6">Subjek Pesan</th>
+                                    <th class="py-4 px-6">Isi Pesan</th>
+                                    <th class="py-4 px-6">Waktu Masuk</th>
+                                    <th class="py-4 px-6 text-center">Status</th>
+                                    <th class="py-4 px-6 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pesan-table-body" class="divide-y divide-slate-100 font-medium text-slate-700">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Baca & Balas Pesan -->
+            <div x-show="modalReply" x-cloak class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                    <div @click="modalReply = false" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+                    <div class="inline-block bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-xl sm:w-full p-6 sm:p-8 relative z-10 border border-slate-100">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                            <div>
+                                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Layanan Komunikasi Pelanggan</span>
+                                <h3 class="text-lg font-bold text-slate-900 mt-0.5">Detail & Balas Pesan</h3>
+                            </div>
+                            <button @click="modalReply = false" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <template x-if="activeMsg">
+                            <div class="mt-4 space-y-4">
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1 text-xs">
+                                    <p><span class="text-slate-400 font-bold uppercase w-24 inline-block">Pengirim:</span> <strong class="text-slate-900" x-text="activeMsg.nama"></strong></p>
+                                    <p><span class="text-slate-400 font-bold uppercase w-24 inline-block">Email:</span> <span class="text-slate-600" x-text="activeMsg.email"></span></p>
+                                    <p><span class="text-slate-400 font-bold uppercase w-24 inline-block">Telepon:</span> <span class="font-mono text-slate-600" x-text="activeMsg.no_telepon || '-'"></span></p>
+                                    <p><span class="text-slate-400 font-bold uppercase w-24 inline-block">Subjek:</span> <strong class="text-indigo-700" x-text="activeMsg.subjek"></strong></p>
+                                    <div class="pt-2 border-t border-slate-200 mt-2">
+                                        <span class="text-slate-400 font-bold uppercase block mb-1">Isi Pesan:</span>
+                                        <p class="text-slate-700 leading-relaxed bg-white p-3 rounded-xl border border-slate-200" x-text="activeMsg.pesan"></p>
+                                    </div>
+                                </div>
+
+                                <template x-if="activeMsg.balasan_admin">
+                                    <div class="p-3.5 bg-indigo-50/70 border border-indigo-100 rounded-2xl text-xs space-y-1">
+                                        <span class="text-[11px] font-bold text-indigo-900 block">Balasan Sebelumnya:</span>
+                                        <p class="text-indigo-800" x-text="activeMsg.balasan_admin"></p>
+                                        <span class="text-[10px] text-indigo-400 block" x-text="activeMsg.dibalas_at"></span>
+                                    </div>
+                                </template>
+
+                                <form onsubmit="handleSendReply(event)">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Tulis Balasan Administrator</label>
+                                    <textarea id="reply-text" rows="3" required class="w-full p-3 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Tuliskan respon atau jawaban resmi dari admin..."></textarea>
+                                    <div class="mt-3 flex justify-end space-x-2">
+                                        <button type="button" @click="modalReply = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50">
+                                            Tutup
+                                        </button>
+                                        <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md">
+                                            Kirim Balasan
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminSidebar('pesan');
+            renderAdminTopBar('Pesan Masuk (Contact to Admin)');
+            renderPesanTable();
+        });
+
+        function renderPesanTable() {
+            const messages = Store.getMessages();
+            const tbody = document.getElementById('pesan-table-body');
+
+            tbody.innerHTML = messages.map(m => `
+                <tr class="hover:bg-slate-50 transition ${m.status === 'belum_dibaca' ? 'bg-indigo-50/30' : ''}">
+                    <td class="py-4 px-6">
+                        <p class="font-bold text-slate-900">${m.nama}</p>
+                        <p class="text-[11px] text-slate-500">${m.email}</p>
+                        <p class="text-[10px] text-slate-400 font-mono">${m.no_telepon || '-'}</p>
+                    </td>
+                    <td class="py-4 px-6 font-bold text-slate-800">
+                        ${m.subjek}
+                    </td>
+                    <td class="py-4 px-6 text-slate-600 max-w-xs truncate">
+                        ${m.pesan}
+                    </td>
+                    <td class="py-4 px-6 text-slate-400 text-[11px]">
+                        ${m.created_at}
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${m.status === 'dibalas' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700 animate-pulse'}">
+                            ${m.status === 'dibalas' ? 'Dibalas' : 'Belum Dibaca'}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        <div class="flex items-center justify-center space-x-1.5">
+                            <button onclick="openReplyModal(${m.id})" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center">
+                                <i class="fa-solid fa-reply mr-1"></i> Respon
+                            </button>
+                            <button onclick="deletePesan(${m.id})" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition" title="Hapus">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openReplyModal(id) {
+            const m = Store.getMessages().find(item => item.id == id);
+            if (!m) return;
+            const data = Alpine.$data(document.querySelector('[x-data]'));
+            data.activeMsg = m;
+            data.modalReply = true;
+            setTimeout(() => {
+                const textarea = document.getElementById('reply-text');
+                if (textarea) textarea.value = m.balasan_admin || '';
+            }, 50);
+        }
+
+        function handleSendReply(e) {
+            e.preventDefault();
+            const data = Alpine.$data(document.querySelector('[x-data]'));
+            const text = document.getElementById('reply-text').value;
+            if (data.activeMsg) {
+                Store.replyMessage(data.activeMsg.id, text);
+                data.modalReply = false;
+                renderPesanTable();
+                renderAdminSidebar('pesan'); // update badge
+            }
+        }
+
+        function deletePesan(id) {
+            if (confirm('Hapus pesan kontak ini?')) {
+                let msgs = Store.getMessages().filter(m => m.id != id);
+                Store.saveMessages(msgs);
+                Store.toast('Pesan berhasil dihapus.', 'info');
+                renderPesanTable();
+                renderAdminSidebar('pesan');
+            }
+        }
+    </script>
+</body>
+</html>

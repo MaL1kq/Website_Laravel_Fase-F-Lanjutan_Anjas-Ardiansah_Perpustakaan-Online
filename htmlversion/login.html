@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk ke PerpusDigital - Sistem Perpustakaan & BookStore</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased">
+
+    <div id="global-header"></div>
+
+    <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6">
+        <div class="max-w-md w-full">
+            <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/80 p-8 sm:p-10">
+                <!-- Logo & Header -->
+                <div class="text-center mb-8">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-indigo-200 mb-3">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900">Selamat Datang</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Masuk ke akun Perpustakaan & BookStore Anda</p>
+                </div>
+
+                <!-- Form Login -->
+                <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4" autocomplete="off">
+                    <div>
+                        <label for="login" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Email atau Username</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i class="fa-solid fa-user text-sm"></i>
+                            </span>
+                            <input type="text" id="login" required autocomplete="username"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                                placeholder="Contoh: admin atau budi@perpus.test">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Kata Sandi</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i class="fa-solid fa-lock text-sm"></i>
+                            </span>
+                            <input type="password" id="password" required autocomplete="current-password"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-sm pt-1">
+                        <label class="flex items-center text-slate-600 cursor-pointer select-none">
+                            <input type="checkbox" id="remember" class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                            <span class="ml-2 text-xs font-medium">Ingat saya <span class="text-slate-400 font-normal">(tetap login di web)</span></span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-md shadow-indigo-200 transition flex items-center justify-center">
+                        <span>Masuk Sekarang</span>
+                        <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                    </button>
+                </form>
+
+                <!-- Footer Link -->
+                <p class="text-center text-xs text-slate-500 mt-6">
+                    Belum memiliki akun anggota?
+                    <a href="register.html" class="font-bold text-indigo-600 hover:text-indigo-800 transition">Daftar sekarang</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <div id="global-footer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHeader('');
+            renderFooter();
+        });
+
+        function fillAndLogin(userLogin, pass, role) {
+            document.getElementById('login').value = userLogin;
+            document.getElementById('password').value = pass;
+            setDemoUser(role);
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const val = document.getElementById('login').value.toLowerCase().trim();
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+
+            let user = users.find(u => u.username.toLowerCase() === val || u.email.toLowerCase() === val);
+
+            if (!user) {
+                if (val.includes('admin')) {
+                    user = users.find(u => u.role === 'admin');
+                } else {
+                    user = users.find(u => u.role === 'peminjam');
+                }
+            }
+
+            if (user) {
+                Store.setCurrentUser(user);
+                Store.toast(`Selamat datang kembali, ${user.name}!`, 'success');
+                setTimeout(() => {
+                    if (user.role === 'admin') {
+                        window.location.href = 'admin/index.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 400);
+            } else {
+                Store.toast('Username atau password tidak ditemukan.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

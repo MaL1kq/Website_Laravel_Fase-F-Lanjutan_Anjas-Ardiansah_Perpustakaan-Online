@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact to Admin - Hubungi Pengelola BookStore</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased">
+
+    <div id="global-header"></div>
+
+    <main class="flex-grow">
+        <div class="bg-indigo-900/5 border-b border-indigo-100 py-8">
+            <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16">
+                <div class="flex items-center text-xs text-slate-500 space-x-2 mb-2">
+                    <a href="index.html" class="hover:text-indigo-600">Beranda</a>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    <span class="text-slate-800 font-semibold">Contact to Admin</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Contact to Admin (Hubungi Kami)</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Kirimkan pesan, pertanyaan stok buku, konfirmasi pembayaran, atau masukan langsung kepada Administrator BookStore.
+                </p>
+            </div>
+        </div>
+
+        <div class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+            <!-- Formulir Pesan Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Layanan Komunikasi</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-0.5">Formulir Pesan ke Administrator</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Administrator akan meninjau pesan Anda dan memberikan tanggapan secara berkala.</p>
+                    </div>
+                    <span class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base shadow-sm">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </span>
+                </div>
+
+                <form id="contact-form" onsubmit="handleSendContact(event)" class="space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- Nama Lengkap -->
+                        <div>
+                            <label for="contact-nama" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Nama Lengkap <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="text" id="contact-nama" required placeholder="Contoh: Budi Santoso"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="contact-email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Alamat Email <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="email" id="contact-email" required placeholder="budi@example.com"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- Nomor WhatsApp / Telepon -->
+                        <div>
+                            <label for="contact-telepon" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                No. Telepon / WhatsApp (Opsional)
+                            </label>
+                            <input type="text" id="contact-telepon" placeholder="081234567890"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <!-- Subjek Pesan -->
+                        <div>
+                            <label for="contact-subjek" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Subjek Pesan <span class="text-rose-500">*</span>
+                            </label>
+                            <select id="contact-subjek" required
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="Konfirmasi Pembayaran (Payment at Delivery)">Konfirmasi Pembayaran (Payment at Delivery)</option>
+                                <option value="Pertanyaan Stok Buku">Pertanyaan Stok & Ketersediaan Buku</option>
+                                <option value="Permintaan Restok Judul Buku">Permintaan Restok Judul Buku</option>
+                                <option value="Pengajuan Peminjaman Sirkulasi">Pengajuan Peminjaman Sirkulasi</option>
+                                <option value="Kritik, Saran & Masukan">Kritik, Saran & Masukan</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Isi Pesan -->
+                    <div>
+                        <label for="contact-pesan" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Isi Pesan Lengkap <span class="text-rose-500">*</span>
+                        </label>
+                        <textarea id="contact-pesan" rows="5" required
+                            placeholder="Tuliskan pertanyaan, nomor invoice pesanan, atau pesan Anda untuk admin di sini..."
+                            class="w-full p-4 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </div>
+
+                    <!-- Tombol Submit -->
+                    <div class="pt-2 flex justify-end">
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition flex items-center space-x-2">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                            <span>Kirim Pesan ke Admin</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Message History Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Riwayat Pesan Anda</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Pantau tanggapan dan status balasan langsung dari Administrator</p>
+                    </div>
+                    <span id="contact-msg-count" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-bold">0 Pesan</span>
+                </div>
+
+                <div id="contact-messages-list" class="space-y-4">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="global-footer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = Store.getCurrentUser();
+            if (user && user.role === 'admin') {
+                Store.toast('Administrator dialihkan ke halaman Kelola Pesan Masuk.', 'info');
+                setTimeout(() => {
+                    window.location.href = 'admin/pesan.html';
+                }, 300);
+                return;
+            }
+
+            renderHeader('contact');
+            renderFooter();
+
+            if (user) {
+                document.getElementById('contact-nama').value = user.name || '';
+                document.getElementById('contact-email').value = user.email || '';
+                document.getElementById('contact-telepon').value = user.no_telepon || '';
+            }
+
+            renderMessagesHistory();
+
+            window.addEventListener('perpus_messages_changed', renderMessagesHistory);
+        });
+
+        function renderMessagesHistory() {
+            const container = document.getElementById('contact-messages-list');
+            const messages = Store.getMessages();
+            const countBadge = document.getElementById('contact-msg-count');
+            countBadge.innerText = `${messages.length} Pesan`;
+
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <p class="text-xs text-slate-400 text-center py-6">Belum ada pesan yang dikirimkan.</p>
+                `;
+                return;
+            }
+
+            container.innerHTML = messages.map(m => `
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-900">${m.subjek}</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${m.status === 'dibalas' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+                            ${m.status === 'dibalas' ? 'Dibalas Admin' : 'Menunggu Respon'}
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-600">${m.pesan}</p>
+                    <span class="text-[10px] text-slate-400 block">${m.created_at}</span>
+
+                    ${m.balasan_admin ? `
+                        <div class="mt-2.5 p-3 rounded-xl bg-indigo-50/80 border border-indigo-100 text-xs">
+                            <p class="text-[11px] font-bold text-indigo-900 flex items-center mb-1">
+                                <i class="fa-solid fa-reply mr-1.5 text-indigo-600"></i> Respon dari Administrator:
+                            </p>
+                            <p class="text-indigo-800">${m.balasan_admin}</p>
+                            ${m.dibalas_at ? `<span class="text-[10px] text-indigo-400 block mt-1">${m.dibalas_at}</span>` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function handleSendContact(e) {
+            e.preventDefault();
+            const nama = document.getElementById('contact-nama').value;
+            const email = document.getElementById('contact-email').value;
+            const no_telepon = document.getElementById('contact-telepon').value;
+            const subjek = document.getElementById('contact-subjek').value;
+            const pesan = document.getElementById('contact-pesan').value;
+
+            Store.sendMessage({ nama, email, no_telepon, subjek, pesan });
+            document.getElementById('contact-pesan').value = '';
+            renderMessagesHistory();
+        }
+    </script>
+</body>
+</html>

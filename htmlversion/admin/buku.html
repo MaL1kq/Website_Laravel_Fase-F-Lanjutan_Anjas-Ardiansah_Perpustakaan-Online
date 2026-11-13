@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Data Buku & Harga - Panel Administrator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="../assets/js/store.js"></script>
+    <script src="../assets/js/admin-layout.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none !important; }
+        .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, modalBuku: false, isEdit: false, editId: null }">
+
+    <div id="admin-sidebar-container"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div id="admin-topbar-container"></div>
+
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Data Buku & Harga Jual</h1>
+                        <p class="text-xs text-slate-500 mt-1">Kelola seluruh katalog buku fisik, harga jual toko buku, dan stok sirkulasi.</p>
+                    </div>
+                    <button onclick="openCreateBookModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition flex items-center">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Tambah Buku Baru
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-100">
+                                <tr>
+                                    <th class="py-4 px-6">Buku</th>
+                                    <th class="py-4 px-6">Kategori</th>
+                                    <th class="py-4 px-6">Harga Beli</th>
+                                    <th class="py-4 px-6 text-center">Stok</th>
+                                    <th class="py-4 px-6">Lokasi Rak</th>
+                                    <th class="py-4 px-6 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="books-table-body" class="divide-y divide-slate-100 font-medium text-slate-700">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Add/Edit Buku -->
+            <div x-show="modalBuku" x-cloak class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                    <div @click="modalBuku = false" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+                    <div class="inline-block bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-2xl sm:w-full p-6 sm:p-8 relative z-10 border border-slate-100">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                            <h3 class="text-base font-bold text-slate-900" x-text="isEdit ? 'Edit Data Buku' : 'Tambah Buku Baru'"></h3>
+                            <button @click="modalBuku = false" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <form id="form-buku" onsubmit="handleSaveBook(event)" class="mt-4 space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Judul Buku</label>
+                                <input type="text" id="mb-judul" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Penulis</label>
+                                    <input type="text" id="mb-penulis" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Penerbit</label>
+                                    <input type="text" id="mb-penerbit" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Kategori</label>
+                                    <select id="mb-kategori" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                        <!-- Injected by JS -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Tahun Terbit</label>
+                                    <input type="number" id="mb-tahun" required value="2024" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">ISBN</label>
+                                    <input type="text" id="mb-isbn" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="978-xxxx">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Harga Beli (Rp)</label>
+                                    <input type="number" id="mb-harga" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: 95000">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Jumlah Stok</label>
+                                    <input type="number" id="mb-stok" required value="10" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Lokasi Rak</label>
+                                    <input type="text" id="mb-rak" value="Rak A-01" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">URL Cover Buku / Path Gambar</label>
+                                <input type="text" id="mb-cover" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="https://... atau assets/images/CleanCode.jpg">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Deskripsi & Sinopsis</label>
+                                <textarea id="mb-deskripsi" rows="3" required class="w-full p-3 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500" placeholder="Ringkasan isi buku..."></textarea>
+                            </div>
+
+                            <div class="pt-2 flex justify-end space-x-2">
+                                <button type="button" @click="modalBuku = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50">
+                                    Batal
+                                </button>
+                                <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 shadow-md">
+                                    Simpan Data Buku
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminSidebar('buku');
+            renderAdminTopBar('Data Buku & Harga');
+            renderBooksTable();
+            populateCategorySelect();
+        });
+
+        function populateCategorySelect() {
+            const select = document.getElementById('mb-kategori');
+            const categories = Store.getCategories();
+            select.innerHTML = categories.map(c => `
+                <option value="${c.id}">${c.nama_kategori}</option>
+            `).join('');
+        }
+
+        function renderBooksTable() {
+            const books = Store.getBooks();
+            const tbody = document.getElementById('books-table-body');
+
+            tbody.innerHTML = books.map(b => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center space-x-3.5">
+                            <img src="${b.cover}" alt="${b.judul}" class="w-12 h-16 object-cover rounded-xl shadow-sm bg-slate-100 flex-shrink-0">
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-xs sm:text-sm line-clamp-1">${b.judul}</h4>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Penulis: ${b.penulis} &bull; ${b.tahun_terbit}</p>
+                                <p class="text-[10px] text-slate-400 font-mono">ISBN: ${b.isbn || '-'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <span class="px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 font-bold text-[10px]">
+                            ${b.kategori_nama}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 font-mono font-extrabold text-emerald-600">
+                        ${Store.formatRupiah(b.harga)}
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        <span class="px-2.5 py-1 rounded-full ${b.stok > 0 ? 'bg-emerald-50 text-emerald-700 font-bold' : 'bg-rose-50 text-rose-700 font-bold'}">
+                            ${b.stok}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 font-semibold text-slate-600">
+                        ${b.lokasi_rak || 'Rak Utama'}
+                    </td>
+                    <td class="py-4 px-6 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <a href="../buku-detail.html?id=${b.id}" target="_blank" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition" title="Lihat di Web">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                            <button onclick="openEditBookModal(${b.id})" class="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteBook(${b.id})" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition" title="Hapus">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openCreateBookModal() {
+            const data = Alpine.$data(document.querySelector('[x-data]'));
+            data.isEdit = false;
+            data.editId = null;
+            document.getElementById('mb-judul').value = '';
+            document.getElementById('mb-penulis').value = '';
+            document.getElementById('mb-penerbit').value = '';
+            document.getElementById('mb-tahun').value = '2025';
+            document.getElementById('mb-isbn').value = '';
+            document.getElementById('mb-harga').value = '95000';
+            document.getElementById('mb-stok').value = '10';
+            document.getElementById('mb-rak').value = 'Rak A-01';
+            document.getElementById('mb-cover').value = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
+            document.getElementById('mb-deskripsi').value = '';
+            data.modalBuku = true;
+        }
+
+        function openEditBookModal(id) {
+            const b = Store.getBookById(id);
+            if (!b) return;
+            const data = Alpine.$data(document.querySelector('[x-data]'));
+            data.isEdit = true;
+            data.editId = id;
+            document.getElementById('mb-judul').value = b.judul;
+            document.getElementById('mb-penulis').value = b.penulis;
+            document.getElementById('mb-penerbit').value = b.penerbit;
+            document.getElementById('mb-tahun').value = b.tahun_terbit;
+            document.getElementById('mb-isbn').value = b.isbn || '';
+            document.getElementById('mb-kategori').value = b.kategori_id;
+            document.getElementById('mb-harga').value = b.harga;
+            document.getElementById('mb-stok').value = b.stok;
+            document.getElementById('mb-rak').value = b.lokasi_rak || '';
+            document.getElementById('mb-cover').value = b.cover;
+            document.getElementById('mb-deskripsi').value = b.deskripsi || '';
+            data.modalBuku = true;
+        }
+
+        function handleSaveBook(e) {
+            e.preventDefault();
+            const data = Alpine.$data(document.querySelector('[x-data]'));
+            const judul = document.getElementById('mb-judul').value.trim();
+            const penulis = document.getElementById('mb-penulis').value.trim();
+            const penerbit = document.getElementById('mb-penerbit').value.trim();
+            const tahun = Number(document.getElementById('mb-tahun').value);
+            const isbn = document.getElementById('mb-isbn').value.trim();
+            const katId = Number(document.getElementById('mb-kategori').value);
+            const harga = Number(document.getElementById('mb-harga').value);
+            const stok = Number(document.getElementById('mb-stok').value);
+            const rak = document.getElementById('mb-rak').value.trim();
+            const cover = document.getElementById('mb-cover').value.trim();
+            const desk = document.getElementById('mb-deskripsi').value.trim();
+
+            let books = Store.getBooks();
+
+            // 1. Cek duplikasi Judul Buku
+            const duplicateJudul = books.find(b =>
+                b.judul.trim().toLowerCase() === judul.toLowerCase() &&
+                (!data.isEdit || b.id != data.editId)
+            );
+            if (duplicateJudul) {
+                Store.toast(`Buku dengan judul "${judul}" sudah terdaftar! Judul buku tidak boleh duplikat.`, 'error');
+                return;
+            }
+
+            // 2. Cek duplikasi ISBN
+            if (isbn) {
+                const duplicateIsbn = books.find(b =>
+                    b.isbn && b.isbn.trim().toLowerCase() === isbn.toLowerCase() &&
+                    (!data.isEdit || b.id != data.editId)
+                );
+                if (duplicateIsbn) {
+                    Store.toast(`Nomor ISBN "${isbn}" sudah digunakan oleh buku lain! Buku tidak boleh memiliki ISBN yang sama.`, 'error');
+                    return;
+                }
+            }
+
+            // 3. Cek duplikasi Cover & Penulis yang sama
+            if (cover) {
+                const duplicateCover = books.find(b =>
+                    b.cover && b.cover.trim() === cover &&
+                    b.penulis && b.penulis.trim().toLowerCase() === penulis.toLowerCase() &&
+                    (!data.isEdit || b.id != data.editId)
+                );
+                if (duplicateCover) {
+                    Store.toast(`Buku dengan gambar cover dan penulis yang sama sudah ada di sistem ("${duplicateCover.judul}")! Harap periksa apakah buku ini merupakan duplikasi.`, 'error');
+                    return;
+                }
+            }
+
+            const category = Store.getCategories().find(c => c.id == katId) || {};
+
+            if (data.isEdit) {
+                const target = books.find(b => b.id == data.editId);
+                if (target) {
+                    target.judul = judul;
+                    target.penulis = penulis;
+                    target.penerbit = penerbit;
+                    target.tahun_terbit = tahun;
+                    target.isbn = isbn;
+                    target.kategori_id = katId;
+                    target.kategori_nama = category.nama_kategori || 'Umum';
+                    target.kategori_slug = category.slug || 'umum';
+                    target.harga = harga;
+                    target.stok = stok;
+                    target.lokasi_rak = rak;
+                    target.cover = cover;
+                    target.deskripsi = desk;
+                }
+                Store.toast('Data buku berhasil diperbarui!', 'success');
+            } else {
+                books.unshift({
+                    id: Date.now(),
+                    judul,
+                    penulis,
+                    penerbit,
+                    tahun_terbit: tahun,
+                    isbn,
+                    kategori_id: katId,
+                    kategori_nama: category.nama_kategori || 'Umum',
+                    kategori_slug: category.slug || 'umum',
+                    harga,
+                    stok,
+                    lokasi_rak: rak,
+                    cover,
+                    deskripsi: desk,
+                    rating: 5.0,
+                    total_ulasan: 0
+                });
+                Store.toast('Buku baru berhasil ditambahkan ke katalog!', 'success');
+            }
+
+            Store.saveBooks(books);
+            data.modalBuku = false;
+            renderBooksTable();
+        }
+
+        function deleteBook(id) {
+            const borrowings = Store.getBorrowings();
+            const activeBorrow = borrowings.find(b => b.buku_id == id && ['menunggu', 'dipinjam', 'terlambat'].includes(b.status_peminjaman));
+            if (activeBorrow) {
+                Store.toast('Buku tidak dapat dihapus karena sedang dalam status peminjaman aktif perpustakaan.', 'error');
+                return;
+            }
+
+            const orders = Store.getOrders();
+            const activeOrder = orders.find(o =>
+                ['menunggu_pembayaran', 'diproses', 'dikirim'].includes(o.status) &&
+                o.items && o.items.some(item => (item.buku_id == id || item.id == id))
+            );
+            if (activeOrder) {
+                Store.toast('Buku tidak dapat dihapus karena masih terkait dengan pesanan toko buku yang sedang aktif (menunggu pembayaran, diproses, atau dikirim).', 'error');
+                return;
+            }
+
+            if (confirm('Hapus buku ini dari database perpustakaan & toko buku?')) {
+                let books = Store.getBooks().filter(b => b.id != id);
+                Store.saveBooks(books);
+                Store.toast('Buku berhasil dihapus.', 'info');
+                renderBooksTable();
+            }
+        }
+    </script>
+</body>
+</html>
