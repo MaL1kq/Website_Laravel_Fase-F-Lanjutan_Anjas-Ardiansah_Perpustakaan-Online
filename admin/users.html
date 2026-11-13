@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Pengguna (2 Peran) - Panel Administrator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="../assets/js/store.js"></script>
+    <script src="../assets/js/admin-layout.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none !important; }
+        .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased flex h-screen overflow-hidden" x-data="{ sidebarOpen: false, modalUser: false, isEdit: false, editId: null }">
+
+    <div id="admin-sidebar-container"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div id="admin-topbar-container"></div>
+
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Kelola Pengguna Sistem</h1>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Sistem menggunakan <strong>2 Peran Murni (Administrator & Siswa/Peminjam)</strong> sesuai instruksi uji kompetensi BNSP.
+                        </p>
+                    </div>
+                    <button onclick="openCreateUserModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition flex items-center">
+                        <i class="fa-solid fa-user-plus mr-1.5"></i> Tambah Pengguna Baru
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] border-b border-slate-100">
+                                <tr>
+                                    <th class="py-4 px-6">Pengguna</th>
+                                    <th class="py-4 px-6">Username</th>
+                                    <th class="py-4 px-6">Email</th>
+                                    <th class="py-4 px-6">Peran (Role)</th>
+                                    <th class="py-4 px-6">No. Telepon</th>
+                                    <th class="py-4 px-6">Alamat</th>
+                                    <th class="py-4 px-6 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="divide-y divide-slate-100 font-medium text-slate-700">
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Add/Edit User -->
+            <div x-show="modalUser" x-cloak class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                    <div @click="modalUser = false" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+                    <div class="inline-block bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full p-6 sm:p-8 relative z-10 border border-slate-100">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                            <h3 class="text-base font-bold text-slate-900" x-text="isEdit ? 'Edit Data Pengguna' : 'Tambah Pengguna Baru'"></h3>
+                            <button @click="modalUser = false" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <form id="form-user" onsubmit="handleSaveUser(event)" class="mt-4 space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Nama Lengkap</label>
+                                <input type="text" id="mu-name" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Username</label>
+                                    <input type="text" id="mu-username" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Peran (Role)</label>
+                                    <select id="mu-role" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                        <option value="peminjam">Peminjam (Siswa)</option>
+                                        <option value="admin">Administrator Utama</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Email</label>
+                                    <input type="email" id="mu-email" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">No. Telepon / WhatsApp</label>
+                                    <input type="text" id="mu-telepon" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Alamat Tempat Tinggal</label>
+                                <textarea id="mu-alamat" rows="2" class="w-full p-3 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500"></textarea>
+                            </div>
+
+                            <div class="pt-2 flex justify-end space-x-2">
+                                <button type="button" @click="modalUser = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50">
+                                    Batal
+                                </button>
+                                <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 shadow-md">
+                                    Simpan Pengguna
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminSidebar('users');
+            renderAdminTopBar('Kelola Pengguna');
+            renderUsersTable();
+        });
+
+        function renderUsersTable() {
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const tbody = document.getElementById('users-table-body');
+
+            tbody.innerHTML = users.map(u => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full ${u.role === 'admin' ? 'bg-purple-600' : 'bg-emerald-600'} text-white flex items-center justify-center font-bold text-xs uppercase">
+                                ${u.name ? u.name.charAt(0) : 'U'}
+                            </div>
+                            <span class="font-bold text-slate-900">${u.name}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 font-mono text-slate-600">${u.username}</td>
+                    <td class="py-4 px-6 text-slate-600">${u.email}</td>
+                    <td class="py-4 px-6">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'}">
+                            ${u.role === 'admin' ? 'Administrator' : 'Siswa (Peminjam)'}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 font-mono text-slate-500">${u.no_telepon || '-'}</td>
+                    <td class="py-4 px-6 text-slate-500 max-w-xs truncate">${u.alamat || '-'}</td>
+                    <td class="py-4 px-6 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="openEditUserModal(${u.id})" class="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 transition" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteUser(${u.id})" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition" title="Hapus">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openCreateUserModal() {
+            const data = Alpine.$data(document.querySelector('[x-data]'));
+            data.isEdit = false;
+            data.editId = null;
+            document.getElementById('mu-name').value = '';
+            document.getElementById('mu-username').value = '';
+            document.getElementById('mu-email').value = '';
+            document.getElementById('mu-role').value = 'peminjam';
+            document.getElementById('mu-telepon').value = '';
+            document.getElementById('mu-alamat').value = '';
+            data.modalUser = true;
+        }
+
+        function openEditUserModal(id) {
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const u = users.find(item => item.id == id);
+            if (!u) return;
+            const data = Alpine.$data(document.querySelector('[x-data]'));
+            data.isEdit = true;
+            data.editId = id;
+            document.getElementById('mu-name').value = u.name;
+            document.getElementById('mu-username').value = u.username;
+            document.getElementById('mu-email').value = u.email;
+            document.getElementById('mu-role').value = u.role;
+            document.getElementById('mu-telepon').value = u.no_telepon || '';
+            document.getElementById('mu-alamat').value = u.alamat || '';
+            data.modalUser = true;
+        }
+
+        function handleSaveUser(e) {
+            e.preventDefault();
+            const data = Alpine.$data(document.querySelector('[x-data]'));
+            const name = document.getElementById('mu-name').value;
+            const username = document.getElementById('mu-username').value;
+            const email = document.getElementById('mu-email').value;
+            const role = document.getElementById('mu-role').value;
+            const telepon = document.getElementById('mu-telepon').value;
+            const alamat = document.getElementById('mu-alamat').value;
+
+            let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            if (data.isEdit) {
+                const target = users.find(u => u.id == data.editId);
+                if (target) {
+                    target.name = name;
+                    target.username = username;
+                    target.email = email;
+                    target.role = role;
+                    target.no_telepon = telepon;
+                    target.alamat = alamat;
+                }
+                Store.toast('Data pengguna berhasil diperbarui!', 'success');
+            } else {
+                users.push({
+                    id: Date.now(),
+                    name,
+                    username,
+                    email,
+                    role,
+                    no_telepon: telepon,
+                    alamat
+                });
+                Store.toast('Pengguna baru berhasil ditambahkan!', 'success');
+            }
+
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+            data.modalUser = false;
+            renderUsersTable();
+        }
+
+        function deleteUser(id) {
+            const currentUser = Store.getCurrentUser();
+            if (currentUser && currentUser.id == id) {
+                Store.toast('Anda tidak dapat menghapus akun Anda sendiri saat sedang login.', 'error');
+                return;
+            }
+
+            const borrowings = Store.getBorrowings();
+            const activeBorrow = borrowings.find(b => b.user_id == id && ['menunggu', 'dipinjam', 'terlambat'].includes(b.status_peminjaman));
+            if (activeBorrow) {
+                Store.toast('Pengguna ini tidak dapat dihapus karena masih memiliki transaksi peminjaman buku aktif.', 'error');
+                return;
+            }
+
+            const orders = Store.getOrders();
+            const activeOrder = orders.find(o => o.user_id == id && ['menunggu_pembayaran', 'diproses', 'dikirim'].includes(o.status));
+            if (activeOrder) {
+                Store.toast('Pengguna ini tidak dapat dihapus karena masih memiliki pesanan pembelian buku yang sedang aktif.', 'error');
+                return;
+            }
+
+            if (confirm('Hapus pengguna ini dari sistem?')) {
+                let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+                users = users.filter(u => u.id != id);
+                localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+                Store.toast('Pengguna berhasil dihapus.', 'info');
+                renderUsersTable();
+            }
+        }
+    </script>
+</body>
+</html>

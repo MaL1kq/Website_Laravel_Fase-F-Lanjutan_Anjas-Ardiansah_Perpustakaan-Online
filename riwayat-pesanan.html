@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Pesanan Buku - PerpusDigital</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased" x-data="{ modalDetail: false, activeOrder: null }">
+
+    <div id="global-header"></div>
+
+    <main class="flex-grow">
+        <!-- Banner Title -->
+        <div class="bg-indigo-900/5 border-b border-indigo-100 py-8">
+            <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Riwayat Pesanan Buku</h1>
+                        <p class="text-sm text-slate-500 mt-0.5">Pantau status pembayaran, proses pengiriman, dan riwayat pesanan buku Anda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-10">
+            <!-- Order List Container -->
+            <div id="orders-list-container" class="space-y-4">
+                <!-- Rendered by JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="orders-empty" class="hidden bg-white rounded-3xl border border-slate-200/80 p-12 text-center max-w-lg mx-auto shadow-sm">
+                <div class="w-20 h-20 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl mx-auto mb-4">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-slate-900">Belum Ada Transaksi Pembelian</h3>
+                <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                    Anda belum pernah membeli buku di PerpusDigital. Temukan berbagai buku pilihan bermutu di katalog kami!
+                </p>
+                <a href="katalog.html" class="inline-flex items-center mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-200 transition">
+                    <i class="fa-solid fa-book-open mr-2"></i> Belanja Sekarang
+                </a>
+            </div>
+
+            <!-- Modal Detail Pesanan -->
+            <div x-show="modalDetail" x-cloak class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                    <div @click="modalDetail = false" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+                    <div class="inline-block bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-2xl sm:w-full p-6 sm:p-8 relative z-10 border border-slate-100">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                            <div>
+                                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Detail Pembelian Buku</span>
+                                <h3 class="text-lg font-bold text-slate-900 mt-0.5" x-text="activeOrder ? activeOrder.kode_pesanan : ''"></h3>
+                            </div>
+                            <button @click="modalDetail = false" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <template x-if="activeOrder">
+                            <div class="mt-4 space-y-4">
+                                <div class="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                                    <div>
+                                        <span class="text-slate-400 block font-medium">Status Pesanan:</span>
+                                        <span class="font-bold uppercase text-indigo-700 mt-0.5 block" x-text="activeOrder.status"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-400 block font-medium">Metode Pembayaran:</span>
+                                        <span class="font-bold text-slate-800 mt-0.5 block" x-text="activeOrder.metode_pembayaran"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-400 block font-medium">Nama Penerima:</span>
+                                        <span class="font-bold text-slate-800 mt-0.5 block" x-text="activeOrder.nama_penerima"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-slate-400 block font-medium">No. Telepon / WhatsApp:</span>
+                                        <span class="font-bold text-slate-800 mt-0.5 block" x-text="activeOrder.no_telepon"></span>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <span class="text-slate-400 block font-medium">Alamat Pengiriman:</span>
+                                        <span class="font-bold text-slate-800 mt-0.5 block" x-text="activeOrder.alamat_pengiriman"></span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Item Buku yang Dipesan</h4>
+                                    <div class="divide-y divide-slate-100 border border-slate-100 rounded-2xl overflow-hidden">
+                                        <template x-for="item in activeOrder.items" :key="item.buku_id">
+                                            <div class="p-3 bg-white flex items-center justify-between text-xs">
+                                                <div class="flex items-center space-x-3">
+                                                    <img :src="item.cover" class="w-10 h-14 object-cover rounded-lg bg-slate-100">
+                                                    <div>
+                                                        <p class="font-bold text-slate-900" x-text="item.judul"></p>
+                                                        <p class="text-slate-500" x-text="`${item.jumlah} x ${Store.formatRupiah(item.harga_satuan)}`"></p>
+                                                    </div>
+                                                </div>
+                                                <span class="font-bold text-slate-900" x-text="Store.formatRupiah(item.subtotal)"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 flex justify-between items-center border-t border-slate-100">
+                                    <div>
+                                        <span class="text-xs text-slate-400">Total Pembayaran:</span>
+                                        <p class="text-lg font-black text-indigo-600" x-text="Store.formatRupiah(activeOrder.total_harga)"></p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a :href="`cetak-invoice.html?id=${activeOrder.id}`" target="_blank" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center">
+                                            <i class="fa-solid fa-print mr-1.5"></i> Cetak Invoice
+                                        </a>
+                                        <button @click="modalDetail = false" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold">
+                                            Tutup
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="global-footer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHeader('pesanan');
+            renderFooter();
+            renderOrders();
+
+            window.addEventListener('perpus_orders_changed', renderOrders);
+        });
+
+        function renderOrders() {
+            const container = document.getElementById('orders-list-container');
+            const emptyEl = document.getElementById('orders-empty');
+            const orders = Store.getOrders();
+
+            if (orders.length === 0) {
+                container.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+
+            const statusColors = {
+                'menunggu': 'bg-amber-50 text-amber-700 border-amber-200',
+                'diproses': 'bg-blue-50 text-blue-700 border-blue-200',
+                'dikirim': 'bg-purple-50 text-purple-700 border-purple-200',
+                'selesai': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                'dibatalkan': 'bg-rose-50 text-rose-700 border-rose-200'
+            };
+
+            const statusLabels = {
+                'menunggu': 'Menunggu Konfirmasi',
+                'diproses': 'Sedang Diproses',
+                'dikirim': 'Dalam Pengiriman',
+                'selesai': 'Pesanan Selesai',
+                'dibatalkan': 'Dibatalkan'
+            };
+
+            container.innerHTML = orders.map(item => `
+                <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
+                                ${item.kode_pesanan}
+                            </span>
+                            <span class="text-xs text-slate-400">
+                                <i class="fa-regular fa-clock mr-1"></i> ${item.created_at} WIB
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold px-3 py-1 rounded-full border ${statusColors[item.status] || 'bg-slate-100 text-slate-700'}">
+                                ${statusLabels[item.status] || item.status}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="py-4 space-y-3">
+                        ${item.items.map(detail => `
+                            <div class="flex items-center space-x-4">
+                                <img src="${detail.cover}" alt="${detail.judul}" class="w-12 h-16 object-cover rounded-lg shadow-sm flex-shrink-0 bg-slate-100">
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-sm font-bold text-slate-900 line-clamp-1">${detail.judul}</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">${detail.jumlah} x ${Store.formatRupiah(detail.harga_satuan)}</p>
+                                </div>
+                                <div class="text-xs font-bold text-slate-800">
+                                    ${Store.formatRupiah(detail.subtotal)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="text-xs text-slate-500">
+                            Metode Pembayaran: <span class="font-bold text-slate-800">${item.metode_pembayaran}</span>
+                        </div>
+
+                        <div class="flex items-center space-x-3">
+                            <div class="text-right">
+                                <span class="text-[11px] text-slate-400 block">Total Tagihan:</span>
+                                <span class="text-base font-extrabold text-indigo-600">${Store.formatRupiah(item.total_harga)}</span>
+                            </div>
+                            <button onclick="viewOrderDetail(${item.id})" class="px-4 py-2 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 font-bold text-xs rounded-xl transition shadow-sm">
+                                Detail Pesanan
+                            </button>
+                            <a href="cetak-invoice.html?id=${item.id}" target="_blank" class="px-3.5 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl transition shadow-sm" title="Cetak Struk Invoice">
+                                <i class="fa-solid fa-print"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewOrderDetail(orderId) {
+            const order = Store.getOrders().find(o => o.id == orderId);
+            if (!order) return;
+            const alpineData = Alpine.$data(document.querySelector('[x-data]'));
+            if (alpineData) {
+                alpineData.activeOrder = order;
+                alpineData.modalDetail = true;
+            }
+        }
+    </script>
+</body>
+</html>

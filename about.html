@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Tentang PerpusDigital & BookStore</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased">
+
+    <div id="global-header"></div>
+
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="relative bg-gradient-to-b from-indigo-900 via-indigo-800 to-slate-900 text-white py-16 sm:py-24 overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 relative z-10">
+                <div class="max-w-3xl">
+                    <span class="inline-flex items-center text-xs font-bold uppercase tracking-wider bg-white/10 text-indigo-200 px-3.5 py-1.5 rounded-full border border-white/15 mb-4">
+                        <i class="fa-solid fa-circle-info mr-2 text-indigo-400"></i> Detail Halaman About Us (BNSP BookStore)
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                        Membuka Gerbang Ilmu Melalui Literasi Digital & Toko Buku Modern
+                    </h1>
+                    <p class="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed">
+                        <strong>PerpusDigital BookStore</strong> adalah platform terpadu yang menggabungkan kemudahan sirkulasi peminjaman buku perpustakaan online serta pembelian buku fisik original berkualitas tinggi untuk siswa, pengajar, dan masyarakat umum.
+                    </p>
+                    <div class="mt-8 flex flex-wrap gap-3">
+                        <a href="katalog.html" class="px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs shadow-lg shadow-indigo-500/30 transition flex items-center">
+                            <i class="fa-solid fa-book-open mr-2"></i> Jelajahi Koleksi Buku
+                        </a>
+                        <a id="about-contact-btn" href="contact.html" class="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition flex items-center">
+                            <i class="fa-solid fa-envelope mr-2"></i> Contact to Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Highlight Section -->
+        <section class="relative -mt-10 z-20">
+            <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-lg shadow-slate-200/50 flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </div>
+                        <div>
+                            <h3 id="about-stat-buku" class="text-2xl font-black text-slate-900">10</h3>
+                            <p class="text-xs text-slate-500 font-medium">Judul Buku Terdaftar</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-lg shadow-slate-200/50 flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <div>
+                            <h3 id="about-stat-kat" class="text-2xl font-black text-slate-900">6</h3>
+                            <p class="text-xs text-slate-500 font-medium">Kategori Ilmu & Sastra</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-lg shadow-slate-200/50 flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <h3 id="about-stat-user" class="text-2xl font-black text-slate-900">4</h3>
+                            <p class="text-xs text-slate-500 font-medium">Anggota Siswa Aktif</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-lg shadow-slate-200/50 flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black text-slate-900">100%</h3>
+                            <p class="text-xs text-slate-500 font-medium">Payment at Delivery Ready</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Details Section -->
+        <section class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-16 space-y-16">
+            <!-- Story & Mission Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Tentang Platform Kami</span>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-2 leading-tight">
+                        Solusi Lengkap Membaca & Memiliki Buku Impian Anda
+                    </h2>
+                    <div class="space-y-4 text-xs sm:text-sm text-slate-600 mt-4 leading-relaxed">
+                        <p>
+                            Aplikasi ini dirancang khusus untuk memenuhi standar sertifikasi profesi keahlian Rekayasa Perangkat Lunak (RPL) dan BNSP, mengedepankan sistem arsitektur modern <strong>2 Aktor (Admin & User)</strong> yang handal, cepat, dan mudah digunakan.
+                        </p>
+                        <p>
+                            Sebagai <strong>Perpustakaan Digital</strong>, kami memfasilitasi peminjaman buku fisik secara online tanpa antre, pencatatan otomatis masa tenggang, dan penghitungan denda yang transparan.
+                        </p>
+                        <p>
+                            Sebagai <strong>Toko Buku (BookStore)</strong>, kami melayani pemesanan buku fisik original melalui fitur Keranjang Belanja (<em>Shopping Cart</em>), pilihan metode pembayaran aman <em>Payment at Delivery</em>, serta penerbitan invoice resmi.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="p-6 rounded-3xl bg-indigo-50/60 border border-indigo-100">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-lg mb-3">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm">Visi Kami</h4>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Mewujudkan akses literasi tanpa batas bagi seluruh siswa dan masyarakat melalui teknologi web interaktif dan terpercaya.
+                        </p>
+                    </div>
+
+                    <div class="p-6 rounded-3xl bg-emerald-50/60 border border-emerald-100">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg mb-3">
+                            <i class="fa-solid fa-compass"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm">Misi Utama</h4>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Menyediakan katalog buku terlengkap, proses sirkulasi pinjam yang transparan, dan pemesanan buku dengan konfirmasi akurat.
+                        </p>
+                    </div>
+
+                    <div class="p-6 rounded-3xl bg-amber-50/60 border border-amber-100">
+                        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center text-lg mb-3">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm">2 Aktor (Admin & User)</h4>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Pemisahan wewenang yang tegas antara pengelolaan master buku oleh Administrator dan hak akses peminjaman/pembelian bagi Siswa.
+                        </p>
+                    </div>
+
+                    <div class="p-6 rounded-3xl bg-purple-50/60 border border-purple-100">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center text-lg mb-3">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm">Contact to Admin</h4>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Layanan bantuan pelanggan langsung untuk konfirmasi pengiriman pesanan, verifikasi transfer, dan pertanyaan stok buku.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="global-footer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHeader('about');
+            renderFooter();
+
+            document.getElementById('about-stat-buku').innerText = Store.getBooks().length;
+            document.getElementById('about-stat-kat').innerText = Store.getCategories().length;
+            const user = Store.getCurrentUser();
+            if (user && user.role === 'admin') {
+                const btn = document.getElementById('about-contact-btn');
+                if (btn) {
+                    btn.href = 'admin/pesan.html';
+                    btn.innerHTML = '<i class="fa-solid fa-comments mr-2"></i> Kelola Pesan Masuk';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Pembelian Buku - PerpusDigital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="assets/js/store.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; background: white; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 sm:p-10 min-h-screen">
+
+    <div class="max-w-3xl mx-auto mb-6 no-print flex justify-between items-center">
+        <button onclick="window.close(); history.back();" class="inline-flex items-center text-xs font-semibold text-slate-600 hover:text-indigo-600 transition">
+            &larr; Kembali
+        </button>
+        <button onclick="window.print()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center">
+            Cetak Invoice (PDF)
+        </button>
+    </div>
+
+    <!-- Official Invoice Container -->
+    <div class="max-w-3xl mx-auto bg-white p-8 sm:p-12 rounded-3xl shadow-lg border border-slate-200 print:shadow-none print:border print:rounded-none">
+        <!-- Header -->
+        <div class="flex justify-between items-start pb-8 border-b-2 border-slate-800">
+            <div>
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold">
+                        PD
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black text-slate-900 tracking-tight">PerpusDigital Store</h1>
+                        <p class="text-xs text-slate-500">Layanan Toko Buku & Perpustakaan Terpadu (BNSP)</p>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 mt-3 max-w-xs leading-relaxed">
+                    Gedung Perpustakaan & Toko Buku Lantai 1<br>
+                    Jl. Pendidikan No. 45, Jakarta | Telp: (021) 555-0199
+                </p>
+            </div>
+            <div class="text-right">
+                <span class="text-xs uppercase tracking-widest font-bold text-indigo-600">INVOICE RESMI</span>
+                <p id="inv-kode" class="text-xl font-black text-slate-900 font-mono mt-1">INV-20261106-0001</p>
+                <p id="inv-tgl" class="text-xs text-slate-500 mt-1">Tanggal: 2026-11-06</p>
+                <div class="mt-2">
+                    <span id="inv-status" class="inline-block px-3 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-800 border border-slate-200 uppercase">
+                        DIPROSES
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer & Shipping Info -->
+        <div class="grid grid-cols-2 gap-8 py-6 border-b border-slate-200 text-xs">
+            <div>
+                <span class="text-slate-400 font-bold uppercase tracking-wider block mb-1">Ditagihkan Kepada:</span>
+                <p id="inv-cust-name" class="font-bold text-slate-900 text-sm">Nama Pembeli</p>
+                <p id="inv-cust-email" class="text-slate-600 mt-0.5">Email: -</p>
+            </div>
+            <div>
+                <span class="text-slate-400 font-bold uppercase tracking-wider block mb-1">Alamat Pengiriman Paket:</span>
+                <p id="inv-ship-name" class="font-bold text-slate-900 text-sm">Penerima</p>
+                <p id="inv-ship-telp" class="text-slate-600 mt-0.5">Telp/WA: -</p>
+                <p id="inv-ship-address" class="text-slate-600 mt-0.5 leading-relaxed">-</p>
+                <p id="inv-ship-note" class="text-slate-500 italic mt-1"></p>
+            </div>
+        </div>
+
+        <!-- Purchased Items Table -->
+        <div class="py-6">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="border-b border-slate-300 text-slate-500 uppercase tracking-wider text-[11px]">
+                        <th class="text-left py-2.5">No</th>
+                        <th class="text-left py-2.5">Judul Buku</th>
+                        <th class="text-right py-2.5">Harga</th>
+                        <th class="text-center py-2.5">Qty</th>
+                        <th class="text-right py-2.5">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody id="inv-items-table" class="divide-y divide-slate-100">
+                    <!-- Injected by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summary & Totals -->
+        <div class="pt-4 border-t border-slate-200 flex justify-between items-start text-xs">
+            <div class="max-w-xs space-y-1">
+                <p class="font-bold text-slate-800">Metode Pembayaran:</p>
+                <p id="inv-payment-method" class="text-slate-600 font-medium">Payment at Delivery</p>
+                <p class="text-[11px] text-slate-400 mt-2">
+                    Terima kasih telah berbelanja di PerpusDigital BookStore. Simpan struk ini sebagai bukti transaksi sah Anda.
+                </p>
+            </div>
+            <div class="w-64 space-y-2">
+                <div class="flex justify-between text-slate-600">
+                    <span>Subtotal:</span>
+                    <span id="inv-subtotal" class="font-mono font-bold text-slate-900">Rp 0</span>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Ongkos Kirim:</span>
+                    <span class="font-bold text-emerald-600">GRATIS</span>
+                </div>
+                <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                    <span>Total Tagihan:</span>
+                    <span id="inv-total" class="font-mono text-indigo-700">Rp 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature -->
+        <div class="mt-12 pt-8 border-t border-slate-100 grid grid-cols-2 text-center text-xs text-slate-600">
+            <div>
+                <p class="mb-14">Penerima Barang,</p>
+                <p id="inv-sig-buyer" class="font-bold text-slate-900">Nama Pembeli</p>
+            </div>
+            <div>
+                <p class="mb-14">Petugas / Administrator Store,</p>
+                <p class="font-bold text-slate-900">Administrator Utama</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('id') || 1;
+            const orders = Store.getOrders();
+            const order = orders.find(o => o.id == orderId) || orders[0];
+
+            if (!order) return;
+
+            document.title = `Invoice ${order.kode_pesanan} - PerpusDigital`;
+            document.getElementById('inv-kode').innerText = order.kode_pesanan;
+            document.getElementById('inv-tgl').innerText = `Tanggal: ${order.created_at} WIB`;
+            document.getElementById('inv-status').innerText = order.status.toUpperCase();
+            document.getElementById('inv-cust-name').innerText = order.user_name || order.nama_penerima;
+            document.getElementById('inv-cust-email').innerText = `Email: ${order.email || 'budi@perpus.test'}`;
+            document.getElementById('inv-ship-name').innerText = order.nama_penerima;
+            document.getElementById('inv-ship-telp').innerText = `Telp/WA: ${order.no_telepon}`;
+            document.getElementById('inv-ship-address').innerText = order.alamat_pengiriman;
+            if (order.catatan) {
+                document.getElementById('inv-ship-note').innerText = `Catatan: "${order.catatan}"`;
+            }
+            document.getElementById('inv-payment-method').innerText = order.metode_pembayaran;
+            document.getElementById('inv-subtotal').innerText = Store.formatRupiah(order.total_harga);
+            document.getElementById('inv-total').innerText = Store.formatRupiah(order.total_harga);
+            document.getElementById('inv-sig-buyer').innerText = order.nama_penerima;
+
+            const table = document.getElementById('inv-items-table');
+            table.innerHTML = order.items.map((item, idx) => `
+                <tr>
+                    <td class="py-3 text-slate-400 font-mono">${idx + 1}</td>
+                    <td class="py-3 font-bold text-slate-800">${item.judul}</td>
+                    <td class="py-3 text-right font-mono text-slate-600">${Store.formatRupiah(item.harga_satuan)}</td>
+                    <td class="py-3 text-center font-bold text-slate-800">${item.jumlah}</td>
+                    <td class="py-3 text-right font-mono font-bold text-slate-900">${Store.formatRupiah(item.subtotal)}</td>
+                </tr>
+            `).join('');
+        });
+    </script>
+</body>
+</html>

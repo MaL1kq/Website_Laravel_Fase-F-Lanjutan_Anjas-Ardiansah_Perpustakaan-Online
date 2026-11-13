@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Tidak Ditemukan - PerpusDigital</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="assets/js/store.js"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-4 antialiased">
+    <div class="max-w-lg w-full bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/80 shadow-xl text-center space-y-6">
+        <!-- Brand Badge -->
+        <div class="flex items-center justify-center space-x-2.5">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                <i class="fa-solid fa-book-bookmark text-base"></i>
+            </div>
+            <span class="text-xl font-bold bg-gradient-to-r from-indigo-700 to-indigo-500 bg-clip-text text-transparent">PerpusDigital</span>
+        </div>
+
+        <!-- 404 Visual Indicator -->
+        <div class="relative py-4">
+            <div class="text-8xl sm:text-9xl font-black text-indigo-50 tracking-tighter select-none">404</div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-20 h-20 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl shadow-sm border border-indigo-100">
+                    <i class="fa-solid fa-compass animate-spin text-2xl" style="animation-duration: 8s;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Title & Explanations -->
+        <div class="space-y-2">
+            <h1 class="text-2xl font-black text-slate-900">Halaman Tidak Ditemukan</h1>
+            <p class="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-sm mx-auto">
+                Alamat URL yang Anda tuju mungkin salah ketik atau telah dipindahkan. Anda akan dialihkan secara otomatis dalam <strong id="countdown" class="text-indigo-600 font-bold">3</strong> detik.
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <a href="index.html" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-house text-xs"></i>
+                <span>Kembali ke Beranda</span>
+            </a>
+            <a id="btn-target" href="katalog.html" class="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-book-open text-xs text-indigo-600"></i>
+                <span>Katalog Buku</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const user = Store.getCurrentUser();
+        const targetUrl = (user && user.role === 'admin') ? 'admin/index.html' : 'index.html';
+        
+        const btnTarget = document.getElementById('btn-target');
+        if (user && user.role === 'admin' && btnTarget) {
+            btnTarget.href = 'admin/index.html';
+            btnTarget.innerHTML = '<i class="fa-solid fa-gauge-high text-xs text-indigo-600 mr-2"></i><span>Dashboard Admin</span>';
+        }
+
+        let seconds = 3;
+        const countdownEl = document.getElementById('countdown');
+        const timer = setInterval(() => {
+            seconds--;
+            if (countdownEl) countdownEl.innerText = seconds;
+            if (seconds <= 0) {
+                clearInterval(timer);
+                window.location.href = targetUrl;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

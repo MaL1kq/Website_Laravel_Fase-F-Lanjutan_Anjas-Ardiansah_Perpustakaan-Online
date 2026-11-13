@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Buku - PerpusDigital</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+    <script src="assets/js/store.js"></script>
+    <script src="assets/js/layout.js"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased">
+
+    <div id="global-header"></div>
+
+    <main class="flex-grow">
+        <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-10" x-data="{ modalPinjam: false, ratingInput: 5, beliQty: 1 }">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center text-xs text-slate-500 mb-6 space-x-2">
+                <a href="index.html" class="hover:text-indigo-600 transition">Beranda</a>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <a href="katalog.html" class="hover:text-indigo-600 transition">Katalog</a>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span id="detail-breadcrumb-kat" class="hover:text-indigo-600 transition">Kategori</span>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span id="detail-breadcrumb-title" class="text-slate-800 font-semibold truncate max-w-xs">Judul Buku</span>
+            </nav>
+
+            <!-- Main Detail Section -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm mb-10">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <!-- Book Cover -->
+                    <div class="md:col-span-4 lg:col-span-3 flex flex-col items-center">
+                        <div class="w-full max-w-[260px] aspect-[3/4] rounded-2xl overflow-hidden shadow-xl border border-slate-200/60 relative">
+                            <img id="detail-cover" src="" alt="Cover Buku" class="w-full h-full object-cover">
+                            <div class="absolute top-3 left-3">
+                                <span id="detail-stok-badge" class="text-xs font-bold px-3 py-1 rounded-full shadow-md bg-emerald-500 text-white">
+                                    Tersedia
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Favorite / Koleksi Toggle -->
+                        <button id="detail-fav-btn" onclick="toggleDetailFav()" class="w-full max-w-[260px] mt-4 py-2.5 px-4 rounded-xl text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center space-x-2">
+                            <i id="detail-fav-icon" class="fa-solid fa-heart text-slate-400"></i>
+                            <span id="detail-fav-text">Tambah ke Koleksi Favorit</span>
+                        </button>
+                    </div>
+
+                    <!-- Book Info & Action -->
+                    <div class="md:col-span-8 lg:col-span-9 flex flex-col justify-between">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span id="detail-kat-badge" class="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                                    Kategori
+                                </span>
+                                <div class="flex items-center text-amber-500 text-sm ml-2">
+                                    <i class="fa-solid fa-star mr-1"></i>
+                                    <span id="detail-rating-num" class="font-bold text-slate-800">5.0</span>
+                                    <span id="detail-rating-count" class="text-slate-400 ml-1">(2 Ulasan Pembaca)</span>
+                                </div>
+                            </div>
+
+                            <h1 id="detail-title" class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                                Judul Buku
+                            </h1>
+                            <p class="text-sm text-slate-600 mt-2">
+                                Karya <span id="detail-author" class="font-bold text-indigo-600">Nama Penulis</span>
+                            </p>
+
+                            <!-- Harga Buku Banner (Toko Buku BNSP) -->
+                            <div class="mt-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-white border border-emerald-200/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div>
+                                    <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">Harga Beli Toko Buku</span>
+                                    <div class="flex items-baseline space-x-2 mt-0.5">
+                                        <span id="detail-price" class="text-2xl sm:text-3xl font-black text-emerald-700">Rp 0</span>
+                                        <span class="text-[11px] text-slate-400">/ eksemplar fisik</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-flex items-center text-[11px] font-bold text-emerald-800 bg-white border border-emerald-200 px-3 py-1.5 rounded-xl shadow-sm">
+                                        <i class="fa-solid fa-shield-check mr-1.5 text-emerald-600"></i> Buku Fisik 100% Original
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Metadata Grid -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                                <div>
+                                    <span class="text-slate-400 block font-medium">Penerbit</span>
+                                    <span id="detail-penerbit" class="font-bold text-slate-800 mt-0.5 block truncate">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block font-medium">Tahun Terbit</span>
+                                    <span id="detail-tahun" class="font-bold text-slate-800 mt-0.5 block">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block font-medium">ISBN</span>
+                                    <span id="detail-isbn" class="font-bold text-slate-800 mt-0.5 block font-mono">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block font-medium">Lokasi Rak</span>
+                                    <span id="detail-rak" class="font-bold text-indigo-700 mt-0.5 block">-</span>
+                                </div>
+                            </div>
+
+                            <!-- Sinopsis -->
+                            <div class="mt-6">
+                                <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-2">Sinopsis & Deskripsi</h3>
+                                <p id="detail-deskripsi" class="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+                                    Deskripsi buku...
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons Section (Pinjam + Beli Cart) -->
+                        <div class="mt-8 pt-6 border-t border-slate-200">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Option 1: Peminjaman Online -->
+                                <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex flex-col justify-between">
+                                    <div>
+                                        <span class="text-[11px] font-bold text-indigo-900 uppercase tracking-wider">Layanan Sirkulasi Perpustakaan</span>
+                                        <p class="text-xs text-slate-600 mt-1">Pinjam gratis selama 3-14 hari dengan akun anggota.</p>
+                                    </div>
+                                    <button @click="modalPinjam = true" class="mt-4 w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition flex items-center justify-center">
+                                        <i class="fa-solid fa-clock-rotate-left mr-2"></i> Ajukan Peminjaman Online
+                                    </button>
+                                </div>
+
+                                <!-- Option 2: Toko Buku (Add to Cart) -->
+                                <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 flex flex-col justify-between">
+                                    <div>
+                                        <span class="text-[11px] font-bold text-emerald-950 uppercase tracking-wider">Toko Buku (BookStore)</span>
+                                        <p class="text-xs text-slate-600 mt-1">Beli buku fisik original via keranjang & Payment at Delivery.</p>
+                                    </div>
+                                    <div class="mt-4 flex items-center space-x-2">
+                                        <div class="flex items-center border border-slate-300 rounded-xl bg-white px-2 py-1">
+                                            <button @click="if(beliQty > 1) beliQty--" class="text-slate-500 hover:text-indigo-600 px-2 py-1 font-bold">-</button>
+                                            <span class="px-2 font-bold text-xs text-slate-800" x-text="beliQty"></span>
+                                            <button @click="beliQty++" class="text-slate-500 hover:text-indigo-600 px-2 py-1 font-bold">+</button>
+                                        </div>
+                                        <button @click="handleAddToCart(beliQty)" class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-200 transition flex items-center justify-center">
+                                            <i class="fa-solid fa-cart-plus mr-2"></i> Tambah ke Keranjang
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Pinjam Buku -->
+            <div x-show="modalPinjam" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-pinjam-title" role="dialog" aria-modal="true">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                    <div x-show="modalPinjam" @click="modalPinjam = false" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+                    <div x-show="modalPinjam" class="inline-block bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full p-6 sm:p-8 relative z-10 border border-slate-100">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                            <div>
+                                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Formulir Peminjaman</span>
+                                <h3 class="text-lg font-bold text-slate-900 mt-0.5">Konfirmasi Pinjam Buku</h3>
+                            </div>
+                            <button @click="modalPinjam = false" class="text-slate-400 hover:text-slate-600">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        <form id="form-pinjam-modal" onsubmit="submitPinjam(event)" class="mt-4 space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Durasi Peminjaman</label>
+                                <select id="pinjam-durasi" class="w-full py-2.5 px-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
+                                    <option value="3">3 Hari</option>
+                                    <option value="7" selected>7 Hari (Standar)</option>
+                                    <option value="14">14 Hari (Maksimal)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
+                                <textarea id="pinjam-catatan" rows="3" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Keperluan tugas bahasa Indonesia atau persiapan USK..."></textarea>
+                            </div>
+                            <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 flex items-start space-x-2">
+                                <i class="fa-solid fa-triangle-exclamation mt-0.5 flex-shrink-0"></i>
+                                <span>Harap mengembalikan buku tepat waktu. Denda keterlambatan Rp 1.000 / hari per buku.</span>
+                            </div>
+                            <div class="pt-2 flex justify-end space-x-2">
+                                <button type="button" @click="modalPinjam = false" class="px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50">
+                                    Batal
+                                </button>
+                                <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 shadow-md shadow-indigo-200">
+                                    Kirim Pengajuan Pinjam
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ulasan Pembaca Section -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Feedback & Rating</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-0.5">Ulasan Pembaca</h2>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">
+                                    S
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800">Siti Nurhaliza</p>
+                                    <p class="text-[10px] text-slate-400">Anggota Siswa - 2 hari yang lalu</p>
+                                </div>
+                            </div>
+                            <div class="flex text-amber-400 text-xs">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Buku yang sangat luar biasa dan sangat bermanfaat! Penjelasannya terstruktur dan mudah dipahami.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="global-footer"></div>
+
+    <script>
+        let currentBook = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHeader('katalog');
+            renderFooter();
+
+            const params = new URLSearchParams(window.location.search);
+            const bookId = params.get('id') || 1;
+            currentBook = Store.getBookById(bookId);
+
+            if (!currentBook) {
+                currentBook = Store.getBooks()[0];
+            }
+
+            // Populate DOM
+            document.title = `${currentBook.judul} - PerpusDigital`;
+            document.getElementById('detail-breadcrumb-kat').innerText = currentBook.kategori_nama;
+            document.getElementById('detail-breadcrumb-title').innerText = currentBook.judul;
+            document.getElementById('detail-cover').src = currentBook.cover;
+            document.getElementById('detail-kat-badge').innerText = currentBook.kategori_nama;
+            document.getElementById('detail-title').innerText = currentBook.judul;
+            document.getElementById('detail-author').innerText = currentBook.penulis;
+            document.getElementById('detail-price').innerText = Store.formatRupiah(currentBook.harga);
+            document.getElementById('detail-penerbit').innerText = currentBook.penerbit;
+            document.getElementById('detail-tahun').innerText = currentBook.tahun_terbit;
+            document.getElementById('detail-isbn').innerText = currentBook.isbn;
+            document.getElementById('detail-rak').innerText = currentBook.lokasi_rak;
+            document.getElementById('detail-deskripsi').innerText = currentBook.deskripsi;
+            document.getElementById('detail-rating-num').innerText = currentBook.rating.toFixed(1);
+            document.getElementById('detail-rating-count').innerText = `(${currentBook.total_ulasan} Ulasan)`;
+
+            updateFavButton();
+        });
+
+        function updateFavButton() {
+            if (!currentBook) return;
+            const isFav = Store.isFavorite(currentBook.id);
+            const icon = document.getElementById('detail-fav-icon');
+            const text = document.getElementById('detail-fav-text');
+            if (isFav) {
+                icon.className = 'fa-solid fa-heart text-pink-600';
+                text.innerText = 'Tersimpan di Favorit';
+            } else {
+                icon.className = 'fa-solid fa-heart text-slate-400';
+                text.innerText = 'Tambah ke Koleksi Favorit';
+            }
+        }
+
+        function toggleDetailFav() {
+            if (!currentBook) return;
+            Store.toggleFavorite(currentBook.id);
+            updateFavButton();
+        }
+
+        function handleAddToCart(qty) {
+            if (!currentBook) return;
+            Store.addToCart(currentBook.id, Number(qty));
+        }
+
+        function submitPinjam(e) {
+            e.preventDefault();
+            const user = Store.getCurrentUser();
+            if (!user) {
+                Store.toast('Silakan masuk ke akun terlebih dahulu.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 1000);
+                return;
+            }
+            const durasi = document.getElementById('pinjam-durasi').value;
+            const catatan = document.getElementById('pinjam-catatan').value;
+            Store.borrowBook(currentBook.id, durasi, catatan);
+            setTimeout(() => {
+                window.location.href = 'riwayat-peminjaman.html';
+            }, 600);
+        }
+    </script>
+</body>
+</html>
