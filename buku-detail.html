@@ -320,6 +320,12 @@
 
         function handleAddToCart(qty) {
             if (!currentBook) return;
+            const user = Store.getCurrentUser();
+            if (!user) {
+                Store.toast('Silakan masuk ke akun anggota terlebih dahulu untuk menambah ke keranjang.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 800);
+                return;
+            }
             Store.addToCart(currentBook.id, Number(qty));
         }
 

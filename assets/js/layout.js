@@ -4,7 +4,10 @@
  */
 
 function renderHeader(activePage = '') {
-    const user = Store.getCurrentUser();
+    let user = Store.getCurrentUser();
+    if (activePage === 'login' || activePage === 'register') {
+        user = null; // Pada halaman login & register, header selalu mode tamu (Guest) persis @guest di Laravel
+    }
     const cartCount = Store.getCartCount();
 
     const isHome = activePage === 'home';
@@ -14,6 +17,8 @@ function renderHeader(activePage = '') {
     const isPinjam = activePage === 'pinjam';
     const isPesanan = activePage === 'pesanan';
     const isFavorit = activePage === 'favorit';
+    const isLogin = activePage === 'login';
+    const isRegister = activePage === 'register';
 
     const headerHtml = `
     <!-- Main Navigation Bar -->
@@ -74,10 +79,10 @@ function renderHeader(activePage = '') {
                     ` : ''}
 
                     ${!user ? `
-                        <a href="login.html" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition">
+                        <a href="login.html" class="px-4 py-2 rounded-lg text-sm font-semibold transition ${isLogin ? 'text-indigo-600 bg-indigo-50 font-bold' : 'text-slate-700 hover:text-indigo-600 hover:bg-slate-100'}">
                             Masuk
                         </a>
-                        <a href="register.html" class="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm shadow-indigo-200 transition">
+                        <a href="register.html" class="px-4 py-2 rounded-lg text-sm font-semibold transition ${isRegister ? 'bg-indigo-700 text-white shadow-sm' : 'text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm shadow-indigo-200'}">
                             Daftar Anggota
                         </a>
                     ` : `
@@ -179,6 +184,16 @@ function renderHeader(activePage = '') {
                     <i class="fa-solid fa-chart-line mr-2"></i> Panel Administrator
                 </a>
             ` : ''}
+            ${!user ? `
+                <div class="pt-2 border-t border-slate-100 flex flex-col space-y-1">
+                    <a href="login.html" class="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-50">
+                        <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk
+                    </a>
+                    <a href="register.html" class="block px-3 py-2 rounded-lg text-base font-semibold text-indigo-600 bg-indigo-50">
+                        <i class="fa-solid fa-user-plus mr-2"></i> Daftar Anggota
+                    </a>
+                </div>
+            ` : ''}
         </div>
     </nav>
     `;
@@ -187,8 +202,11 @@ function renderHeader(activePage = '') {
     if (el) el.innerHTML = headerHtml;
 }
 
-function renderFooter() {
-    const user = Store.getCurrentUser();
+function renderFooter(activePage = '') {
+    let user = Store.getCurrentUser();
+    if (activePage === 'login' || activePage === 'register') {
+        user = null;
+    }
     const footerHtml = `
     <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 mt-16">
         <div class="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-12">
@@ -253,7 +271,7 @@ function renderFooter() {
     </footer>
 
     <!-- Floating Quick Contact / Chat Admin Button -->
-    ${!user || user.role !== 'admin' ? `
+    ${(!user || user.role !== 'admin') && activePage !== 'contact' && activePage !== 'login' && activePage !== 'register' ? `
     <div class="fixed bottom-6 right-6 z-40 group">
         <a href="contact.html" class="flex items-center space-x-2.5 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-full shadow-xl shadow-indigo-600/30 hover:scale-105 transition-all">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>

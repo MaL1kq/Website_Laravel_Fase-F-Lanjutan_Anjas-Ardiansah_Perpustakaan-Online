@@ -4,7 +4,14 @@
  */
 
 function renderAdminSidebar(activePage = 'dashboard') {
-    const user = Store.getCurrentUser() || { name: 'Administrator Utama', email: 'admin@perpus.test', role: 'admin' };
+    const user = Store.getCurrentUser();
+    if (!user || user.role !== 'admin') {
+        Store.toast('Halaman khusus Administrator. Silakan login terlebih dahulu.', 'error');
+        setTimeout(() => {
+            window.location.href = '../login.html';
+        }, 500);
+        return;
+    }
     const messages = Store.getMessages();
     const pesanBaruCount = messages.filter(m => m.status === 'belum_dibaca').length;
 

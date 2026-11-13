@@ -89,12 +89,31 @@
         });
 
         function renderFavorites() {
+            const user = Store.getCurrentUser();
+            const grid = document.getElementById('fav-books-grid');
+            const emptyEl = document.getElementById('fav-empty');
+
+            if (!user) {
+                grid.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                emptyEl.innerHTML = `
+                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 text-3xl mx-auto mb-4">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-slate-900">Silakan Masuk Terlebih Dahulu</h3>
+                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                        Koleksi buku favorit hanya dapat diakses oleh anggota yang telah masuk ke akun.
+                    </p>
+                    <a href="login.html" class="inline-flex items-center mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-200 transition">
+                        <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk ke Akun
+                    </a>
+                `;
+                return;
+            }
+
             const favIds = Store.getFavorites();
             const allBooks = Store.getBooks();
             const books = allBooks.filter(b => favIds.includes(b.id));
-
-            const grid = document.getElementById('fav-books-grid');
-            const emptyEl = document.getElementById('fav-empty');
 
             if (books.length === 0) {
                 grid.innerHTML = '';
