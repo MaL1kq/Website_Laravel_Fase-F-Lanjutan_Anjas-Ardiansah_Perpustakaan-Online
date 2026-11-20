@@ -142,18 +142,6 @@
                             </div>
                             <i class="fa-solid fa-qrcode text-slate-400 text-lg"></i>
                         </label>
-
-                        <label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition"
-                            :class="selectedMethod === 'COD / Bayar di Tempat' ? 'border-indigo-600 bg-indigo-50/50 shadow-sm' : 'border-slate-200 hover:border-slate-300'">
-                            <div class="flex items-center space-x-3">
-                                <input type="radio" name="metode_pembayaran" value="COD / Bayar di Tempat" x-model="selectedMethod" class="text-indigo-600 focus:ring-indigo-500">
-                                <div>
-                                    <p class="text-sm font-bold text-slate-900">COD (Cash on Delivery)</p>
-                                    <p class="text-xs text-slate-500 mt-0.5">Bayar tunai kepada kurir saat buku sampai di alamat Anda.</p>
-                                </div>
-                            </div>
-                            <i class="fa-solid fa-hand-holding-dollar text-slate-400 text-lg"></i>
-                        </label>
                     </div>
                 </div>
             </div>

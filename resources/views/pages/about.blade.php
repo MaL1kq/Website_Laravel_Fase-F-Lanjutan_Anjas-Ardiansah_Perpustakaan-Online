@@ -132,7 +132,7 @@
                 </div>
                 <h3 class="font-bold text-sm text-slate-900">Payment at Delivery</h3>
                 <p class="text-xs text-slate-500 leading-relaxed">
-                    Mendukung pembayaran sebelum pengiriman maupun bayar di tempat demi kenyamanan dan keamanan transaksi.
+                    Mendukung verifikasi pembayaran via Transfer Bank & QRIS sebelum paket buku dikirimkan ke alamat Anda.
                 </p>
             </div>
 
@@ -174,7 +174,7 @@
                     </li>
                     <li class="flex items-start space-x-2">
                         <i class="fa-solid fa-check text-emerald-600 mt-0.5"></i>
-                        <span><strong>Payment at Delivery:</strong> Isi alamat dan pilih pembayaran transfer sebelum dikirim atau COD.</span>
+                        <span><strong>Payment at Delivery:</strong> Isi alamat dan selesaikan verifikasi pembayaran via Transfer Bank atau QRIS sebelum buku dikirim.</span>
                     </li>
                     <li class="flex items-start space-x-2">
                         <i class="fa-solid fa-check text-emerald-600 mt-0.5"></i>
