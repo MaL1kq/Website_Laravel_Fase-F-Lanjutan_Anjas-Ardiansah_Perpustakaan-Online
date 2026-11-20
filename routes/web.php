@@ -83,9 +83,9 @@ Route::middleware(['auth', 'role:peminjam'])->group(function () {
     // Fitur Keranjang Belanja (Cart)
     Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
     Route::post('/keranjang/tambah/{buku?}', [CartController::class, 'add'])->name('cart.add');
-    Route::match(['post', 'patch'], '/keranjang/{id}/update', [CartController::class, 'update'])->name('cart.update');
-    Route::match(['delete', 'post'], '/keranjang/{id}/hapus', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('/keranjang/{id}', [CartController::class, 'remove'])->name('cart.destroy');
+    Route::match(['get', 'post', 'patch'], '/keranjang/{id}/update', [CartController::class, 'update'])->name('cart.update');
+    Route::match(['get', 'delete', 'post'], '/keranjang/{id}/hapus', [CartController::class, 'remove'])->name('cart.remove');
+    Route::match(['get', 'delete'], '/keranjang/{id}', [CartController::class, 'remove'])->name('cart.destroy');
     Route::post('/keranjang/kosongkan', [CartController::class, 'clear'])->name('cart.clear');
 
     // Fitur Checkout Pembelian Buku
@@ -168,10 +168,10 @@ Route::fallback(function (\Illuminate\Http\Request $request) {
     }
 
     // 3. Jika URL terkait keranjang atau pesanan
-    if (in_array($path, ['cart', 'keranjang', 'keranjang-belanja'])) {
+    if (str_starts_with($path, 'cart') || str_starts_with($path, 'keranjang')) {
         return redirect()->route('cart.index');
     }
-    if (in_array($path, ['pesanan', 'order', 'orders', 'pesanan-saya'])) {
+    if (str_starts_with($path, 'pesanan') || str_starts_with($path, 'order')) {
         return redirect()->route('pesanan.index');
     }
 

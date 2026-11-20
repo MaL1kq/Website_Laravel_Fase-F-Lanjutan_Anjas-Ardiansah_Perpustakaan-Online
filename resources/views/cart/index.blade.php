@@ -57,7 +57,7 @@
                                 <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto space-x-6">
                                     <!-- Quantity Controller (+ / -) -->
                                     <div class="flex items-center border border-slate-200 rounded-xl bg-slate-50 overflow-hidden shadow-sm">
-                                        <form action="{{ route('cart.update', $item->id) }}" method="POST">
+                                        <form action="{{ route('cart.update', $item->id) }}" method="POST" onsubmit="this.querySelector('button').disabled = true">
                                             @csrf
                                             <input type="hidden" name="action" value="minus">
                                             <button type="submit" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition focus:outline-none">
@@ -67,7 +67,7 @@
 
                                         <span class="w-10 text-center font-bold text-sm text-slate-800">{{ $item->jumlah }}</span>
 
-                                        <form action="{{ route('cart.update', $item->id) }}" method="POST">
+                                        <form action="{{ route('cart.update', $item->id) }}" method="POST" onsubmit="this.querySelector('button').disabled = true">
                                             @csrf
                                             <input type="hidden" name="action" value="plus">
                                             <button type="submit" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition focus:outline-none">
@@ -83,7 +83,7 @@
                                     </div>
 
                                     <!-- Delete Item Button -->
-                                    <form action="{{ route('cart.remove', $item->id) }}" method="POST">
+                                    <form action="{{ route('cart.remove', $item->id) }}" method="POST" onsubmit="this.querySelector('button').disabled = true">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" title="Hapus dari keranjang" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition">

@@ -73,9 +73,19 @@ class CartController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Cegah error jika diakses via GET (misal refresh browser)
+        if ($request->isMethod('get')) {
+            return redirect()->route('cart.index');
+        }
+
         $item = Keranjang::where('id', $id)
             ->where('user_id', Auth::id())
-            ->firstOrFail();
+            ->first();
+
+        // Jika item sudah tidak ada di keranjang (misal sudah terhapus oleh klik sebelumnya)
+        if (!$item) {
+            return redirect()->route('cart.index');
+        }
 
         $buku = $item->buku;
         $aksi = $request->input('action') ?? $request->input('aksi');
@@ -107,9 +117,11 @@ class CartController extends Controller
     {
         $item = Keranjang::where('id', $id)
             ->where('user_id', Auth::id())
-            ->firstOrFail();
+            ->first();
 
-        $item->delete();
+        if ($item) {
+            $item->delete();
+        }
 
         return redirect()->route('cart.index')->with('success', 'Item berhasil dihapus dari keranjang.');
     }
