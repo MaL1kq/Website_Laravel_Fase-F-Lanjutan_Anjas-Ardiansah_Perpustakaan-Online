@@ -47,6 +47,39 @@ class HomeController extends Controller
         ));
     }
 
+    public function saranPencarian(Request $request)
+    {
+        $keyword = trim($request->query('q', ''));
+
+        if (mb_strlen($keyword) < 1) {
+            return response()->json([]);
+        }
+
+        $pattern = '%' . $keyword . '%';
+
+        $buku = Buku::with('kategori')
+            ->where(function ($query) use ($pattern) {
+                $query->where('judul', 'like', $pattern)
+                    ->orWhereHas('kategori', function ($categoryQuery) use ($pattern) {
+                        $categoryQuery->where('nama_kategori', 'like', $pattern);
+                    });
+            })
+            ->orderByRaw('CASE WHEN judul LIKE ? THEN 0 ELSE 1 END', [$pattern])
+            ->orderBy('judul')
+            ->limit(8)
+            ->get();
+
+        return response()->json($buku->map(function (Buku $item) {
+            return [
+                'judul' => $item->judul,
+                'penulis' => $item->penulis,
+                'kategori' => $item->kategori->nama_kategori ?? 'Umum',
+                'slug' => $item->slug,
+                'url' => route('buku.detail', $item->slug),
+            ];
+        }));
+    }
+
     public function katalog(Request $request)
     {
         $query = Buku::with(['kategori', 'ulasan']);
@@ -66,7 +99,11 @@ class HomeController extends Controller
                   ->orWhere('penulis', 'like', $keyword)
                   ->orWhere('penerbit', 'like', $keyword)
                   ->orWhere('isbn', 'like', $keyword)
-                  ->orWhere('deskripsi', 'like', $keyword);
+                  ->orWhere('tahun_terbit', 'like', $keyword)
+                  ->orWhere('deskripsi', 'like', $keyword)
+                  ->orWhereHas('kategori', function ($q) use ($keyword) {
+                      $q->where('nama_kategori', 'like', $keyword);
+                  });
             });
         }
 
@@ -86,6 +123,10 @@ class HomeController extends Controller
 
         $buku = $query->paginate(12)->withQueryString();
         $kategoriList = KategoriBuku::withCount('buku')->orderBy('nama_kategori')->get();
+
+        if ($request->ajax() || $request->boolean('ajax')) {
+            return view('home.partials.katalog-list', compact('buku'));
+        }
 
         return view('home.katalog', compact('buku', 'kategoriList'));
     }

@@ -36,7 +36,6 @@
         </a>
     </div>
 
-    <!-- Search Bar -->
     <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
         <form action="{{ route('admin.pesanan.index') }}" method="GET" class="w-full sm:w-80">
             @if(request('status'))

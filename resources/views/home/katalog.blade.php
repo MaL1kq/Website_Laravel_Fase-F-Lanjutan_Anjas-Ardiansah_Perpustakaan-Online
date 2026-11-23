@@ -17,7 +17,7 @@
             <!-- Search Widget -->
             <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
                 <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider mb-3">Pencarian</h3>
-                <form action="{{ route('katalog') }}" method="GET">
+                <form id="catalog-search-form" action="{{ route('katalog') }}" method="GET">
                     @if(request('kategori'))
                         <input type="hidden" name="kategori" value="{{ request('kategori') }}">
                     @endif
@@ -46,6 +46,7 @@
                 <ul class="space-y-1.5 text-sm">
                     <li>
                         <a href="{{ route('katalog', array_merge(request()->except('kategori'), [])) }}"
+                           data-category=""
                            class="flex justify-between items-center px-3 py-2 rounded-xl transition {{ !request('kategori') ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-50' }}">
                             <span>Semua Kategori</span>
                             <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">{{ $buku->total() }}</span>
@@ -54,6 +55,7 @@
                     @foreach($kategoriList as $kat)
                         <li>
                             <a href="{{ route('katalog', array_merge(request()->except('kategori'), ['kategori' => $kat->slug])) }}"
+                               data-category="{{ $kat->slug }}"
                                class="flex justify-between items-center px-3 py-2 rounded-xl transition {{ request('kategori') === $kat->slug ? 'bg-indigo-50 text-indigo-700 font-bold' : 'text-slate-600 hover:bg-slate-50' }}">
                                 <span class="line-clamp-1">{{ $kat->nama_kategori }}</span>
                                 <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">{{ $kat->buku_count }}</span>
@@ -66,6 +68,7 @@
 
         <!-- Main Book List -->
         <div class="lg:col-span-3 2xl:col-span-4 space-y-6">
+            <div id="catalog-results">
             <!-- Filter & Sort Bar -->
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
                 <p class="text-xs text-slate-500">
@@ -148,7 +151,141 @@
                     </a>
                 </div>
             @endif
+            </div>
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.querySelector('#catalog-search-form input[name="q"]');
+    const searchForm = document.getElementById('catalog-search-form');
+    const results = document.getElementById('catalog-results');
+    let debounceTimer;
+    let activeRequest;
+
+    async function loadCatalog(url, pushHistory = true) {
+        if (activeRequest) {
+            activeRequest.abort();
+        }
+
+        const requestUrl = new URL(url, window.location.origin);
+        requestUrl.searchParams.set('ajax', '1');
+
+        activeRequest = new AbortController();
+
+        try {
+            const response = await fetch(requestUrl.toString(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html'
+                },
+                signal: activeRequest.signal
+            });
+
+            if (!response.ok) throw new Error('Gagal memuat katalog');
+
+            results.innerHTML = await response.text();
+
+            requestUrl.searchParams.delete('ajax');
+            if (pushHistory) {
+                history.pushState({}, '', requestUrl.pathname + requestUrl.search);
+            }
+
+            updateCategoryState(requestUrl.searchParams.get('kategori'));
+            bindSort();
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error(error);
+            }
+        }
+    }
+
+    function buildUrl() {
+        const url = new URL('{{ route('katalog') }}', window.location.origin);
+        const activeCategory = document.querySelector('[data-category].bg-indigo-50');
+        const q = searchInput ? searchInput.value.trim() : '';
+        const sort = document.querySelector('#catalog-sort-form select[name="sort"]');
+
+        if (q) url.searchParams.set('q', q);
+        if (activeCategory) {
+            const category = activeCategory.dataset.category;
+            if (category) url.searchParams.set('kategori', category);
+        }
+        if (sort) url.searchParams.set('sort', sort.value);
+
+        return url;
+    }
+
+    function updateCategoryState(activeCategory) {
+        document.querySelectorAll('[data-category]').forEach(function (link) {
+            const selected = (link.dataset.category || '') === (activeCategory || '');
+            link.classList.toggle('bg-indigo-50', selected);
+            link.classList.toggle('text-indigo-700', selected);
+            link.classList.toggle('font-bold', selected);
+            link.classList.toggle('text-slate-600', !selected);
+            link.classList.toggle('hover:bg-slate-50', !selected);
+        });
+    }
+
+    function bindSort() {
+        const sortSelect = document.querySelector('#catalog-sort-form select[name="sort"]');
+        if (!sortSelect) return;
+
+        sortSelect.onchange = function () {
+            const url = buildUrl();
+            url.searchParams.set('sort', this.value);
+            loadCatalog(url);
+        };
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () {
+                loadCatalog(buildUrl());
+            }, 350);
+        });
+    }
+
+    if (searchForm) {
+        searchForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            clearTimeout(debounceTimer);
+            loadCatalog(buildUrl());
+        });
+    }
+
+    document.querySelectorAll('[data-category]').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const url = new URL(link.href);
+            loadCatalog(url);
+        });
+    });
+
+    results.addEventListener('click', function (event) {
+        const paginationLink = event.target.closest('.pagination a');
+        if (paginationLink) {
+            event.preventDefault();
+            loadCatalog(paginationLink.href);
+            return;
+        }
+
+        const resetButton = event.target.closest('[data-reset-catalog]');
+        if (resetButton) {
+            searchInput.value = '';
+            loadCatalog('{{ route('katalog') }}');
+        }
+    });
+
+    window.addEventListener('popstate', function () {
+        loadCatalog(window.location.href, false);
+    });
+
+    bindSort();
+    updateCategoryState(new URL(window.location.href).searchParams.get('kategori'));
+});
+</script>
+@endpush
 @endsection

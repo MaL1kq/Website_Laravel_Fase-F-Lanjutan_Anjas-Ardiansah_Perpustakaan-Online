@@ -36,17 +36,20 @@
 
         <!-- Search Bar Hero (Expanded Width) -->
         <div class="mt-8 max-w-3xl lg:max-w-4xl mx-auto">
-            <form action="{{ route('katalog') }}" method="GET" class="relative flex items-center">
+            <form id="hero-search-form" action="{{ route('katalog') }}" method="GET" class="relative flex items-center">
                 <div class="relative w-full">
                     <span class="absolute inset-y-0 left-0 pl-4 sm:pl-5 flex items-center pointer-events-none text-slate-400">
                         <i class="fa-solid fa-magnifying-glass text-slate-400 text-lg"></i>
                     </span>
-                    <input type="text" name="q" placeholder="Cari judul buku, penulis, penerbit, atau ISBN..."
+                    <input type="text" id="hero-search-input" name="q" autocomplete="off" aria-autocomplete="list" aria-controls="hero-search-suggestions" placeholder="Cari judul buku, penulis, penerbit, atau ISBN..."
                         class="w-full pl-12 sm:pl-14 pr-32 sm:pr-36 py-4 sm:py-5 rounded-2xl text-slate-900 bg-white placeholder-slate-400 text-sm sm:text-base font-medium shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-400/50">
                     <button type="submit" class="absolute right-2 top-2 bottom-2 px-5 sm:px-7 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs sm:text-sm transition flex items-center shadow-md">
                         <span>Cari</span>
                         <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
                     </button>
+                    <div id="hero-search-suggestions" role="listbox"
+                         class="absolute z-50 top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden text-left hidden">
+                    </div>
                 </div>
             </form>
             <div class="mt-3.5 flex flex-wrap justify-center items-center gap-2 text-xs sm:text-sm text-indigo-200">
@@ -244,4 +247,155 @@
         </div>
     </div>
 </section>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('hero-search-input');
+    const suggestions = document.getElementById('hero-search-suggestions');
+    const searchForm = document.getElementById('hero-search-form');
+
+    if (!input || !suggestions || !searchForm) return;
+
+    let debounceTimer;
+    let activeRequest;
+    let selectedIndex = -1;
+    let currentItems = [];
+
+    function hideSuggestions() {
+        suggestions.classList.add('hidden');
+        suggestions.innerHTML = '';
+        selectedIndex = -1;
+        currentItems = [];
+        input.setAttribute('aria-expanded', 'false');
+    }
+
+    function escapeHtml(value) {
+        const element = document.createElement('span');
+        element.textContent = value || '';
+        return element.innerHTML;
+    }
+
+    function renderSuggestions(items) {
+        currentItems = items;
+        selectedIndex = -1;
+
+        if (!items.length) {
+            hideSuggestions();
+            return;
+        }
+
+        suggestions.innerHTML = items.map((item, index) => `
+            <a href="${escapeHtml(item.url)}"
+               role="option"
+               data-suggestion-index="${index}"
+               class="hero-suggestion flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
+                <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <span class="min-w-0">
+                    <span class="block text-sm font-bold text-slate-900 truncate">${escapeHtml(item.judul)}</span>
+                    <span class="block text-xs text-slate-500 truncate mt-0.5">${escapeHtml(item.penulis)} · ${escapeHtml(item.kategori)}</span>
+                </span>
+            </a>
+        `).join('');
+
+        suggestions.classList.remove('hidden');
+        input.setAttribute('aria-expanded', 'true');
+    }
+
+    function selectSuggestion(index) {
+        if (index < 0 || index >= currentItems.length) return;
+        window.location.href = currentItems[index].url;
+    }
+
+    async function loadSuggestions(keyword) {
+        if (activeRequest) activeRequest.abort();
+
+        if (keyword.trim().length < 1) {
+            hideSuggestions();
+            return;
+        }
+
+        activeRequest = new AbortController();
+
+        try {
+            const url = new URL(@json(route('pencarian.saran')), window.location.origin);
+            url.searchParams.set('q', keyword.trim());
+
+            const response = await fetch(url.toString(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                signal: activeRequest.signal
+            });
+
+            if (!response.ok) throw new Error('Gagal mengambil saran pencarian');
+
+            renderSuggestions(await response.json());
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                hideSuggestions();
+                console.error(error);
+            }
+        }
+    }
+
+    input.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        const keyword = this.value;
+
+        debounceTimer = setTimeout(function () {
+            loadSuggestions(keyword);
+        }, 250);
+    });
+
+    input.addEventListener('keydown', function (event) {
+        const items = suggestions.querySelectorAll('[role="option"]');
+
+        if (event.key === 'Escape') {
+            hideSuggestions();
+            return;
+        }
+
+        if (!items.length) return;
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            selectedIndex = (selectedIndex + 1) % items.length;
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            selectedIndex = selectedIndex <= 0 ? items.length - 1 : selectedIndex - 1;
+        } else if (event.key === 'Enter' && selectedIndex >= 0) {
+            event.preventDefault();
+            selectSuggestion(selectedIndex);
+            return;
+        } else {
+            return;
+        }
+
+        items.forEach((item, index) => {
+            item.classList.toggle('bg-indigo-50', index === selectedIndex);
+        });
+    });
+
+    suggestions.addEventListener('mousedown', function (event) {
+        const suggestion = event.target.closest('[role="option"]');
+        if (!suggestion) return;
+        event.preventDefault();
+        window.location.href = suggestion.href;
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!searchForm.contains(event.target)) {
+            hideSuggestions();
+        }
+    });
+
+    searchForm.addEventListener('submit', function () {
+        hideSuggestions();
+    });
+});
+</script>
+@endpush
 @endsection

@@ -164,9 +164,12 @@
                         <p class="text-[11px] text-slate-400 truncate">{{ Auth::user()->email }}</p>
                     </div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}"
+                      onsubmit="return confirm('Apakah Anda yakin ingin keluar dari akun ini?');">
                     @csrf
-                    <button type="submit" title="Keluar" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
+                    <button type="submit"
+                            title="Keluar"
+                            class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     </button>
                 </form>
@@ -307,6 +310,7 @@
         });
     </script>
     @endif
+
 
     @stack('scripts')
 </body>

@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/pencarian/saran', [HomeController::class, 'saranPencarian'])->name('pencarian.saran');
 Route::get('/katalog', [HomeController::class, 'katalog'])->name('katalog');
 Route::get('/buku/{slug}', [HomeController::class, 'detailBuku'])->name('buku.detail');
 Route::get('/about', [PageController::class, 'about'])->name('about');

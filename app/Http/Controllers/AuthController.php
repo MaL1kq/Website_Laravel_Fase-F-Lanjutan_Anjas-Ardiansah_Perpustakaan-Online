@@ -99,6 +99,7 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('success', 'Anda telah berhasil keluar.');
+        
     }
 
     private function redirectBasedOnRole(User $user)
