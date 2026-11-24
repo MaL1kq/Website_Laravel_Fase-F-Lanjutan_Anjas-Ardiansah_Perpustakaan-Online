@@ -8,7 +8,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-black text-slate-900">Dashboard Perpustakaan & Toko Buku</h1>
-            <p class="text-xs text-slate-500 mt-1">
+            <p class="text-xs text-slate-500 mt-1"> 
                 Ringkasan inventaris buku, peminjaman siswa, dan transaksi penjualan buku terkini.
             </p>
         </div>

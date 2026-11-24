@@ -34,10 +34,19 @@
                         <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Nomor Invoice</span>
                         <p class="text-xl font-black text-slate-900 font-mono mt-0.5">{{ $pesanan->kode_pesanan }}</p>
                     </div>
-                    <div>
+                    <div class="flex items-center space-x-2">
                         <span class="text-xs font-bold px-4 py-1.5 rounded-full border {{ $pesanan->status_badge_class }}">
                             {{ $pesanan->status_label }}
                         </span>
+                        @if($pesanan->status_pembayaran === 'sudah_dibayar')
+                            <span class="text-xs font-bold px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center">
+                                <i class="fa-solid fa-circle-check mr-1.5 text-emerald-600"></i> Pembayaran Lunas
+                            </span>
+                        @else
+                            <span class="text-xs font-bold px-3.5 py-1.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center">
+                                <i class="fa-solid fa-clock mr-1.5 text-rose-600"></i> Belum Diterima
+                            </span>
+                        @endif
                     </div>
                 </div>
 

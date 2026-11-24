@@ -18,6 +18,8 @@ class Pesanan extends Model
         'user_id',
         'total_harga',
         'status',
+        'status_pembayaran',
+        'tanggal_pembayaran',
         'metode_pembayaran',
         'nama_penerima',
         'no_telepon',
@@ -27,6 +29,7 @@ class Pesanan extends Model
 
     protected $casts = [
         'total_harga' => 'decimal:2',
+        'tanggal_pembayaran' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -81,5 +84,26 @@ class Pesanan extends Model
             'dibatalkan' => 'bg-rose-100 text-rose-800 border-rose-200',
             default => 'bg-slate-100 text-slate-800 border-slate-200',
         };
+    }
+
+    public function getStatusPembayaranLabelAttribute(): string
+    {
+        return match($this->status_pembayaran) {
+            'sudah_dibayar' => 'Sudah Diterima (Lunas)',
+            default => 'Belum Diterima (Menunggu Pembayaran)',
+        };
+    }
+
+    public function getStatusPembayaranBadgeClassAttribute(): string
+    {
+        return match($this->status_pembayaran) {
+            'sudah_dibayar' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+            default => 'bg-rose-100 text-rose-800 border-rose-200',
+        };
+    }
+
+    public function getIsLunasAttribute(): bool
+    {
+        return $this->status_pembayaran === 'sudah_dibayar';
     }
 }

@@ -107,6 +107,13 @@
                                         <span class="font-bold text-slate-900 mt-0.5 block" x-text="activeOrder.metode_pembayaran"></span>
                                     </div>
                                     <div>
+                                        <span class="text-slate-400 block font-medium">Status Pembayaran:</span>
+                                        <span class="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                                              :class="activeOrder.status_pembayaran === 'sudah_dibayar' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'"
+                                              x-text="activeOrder.status_pembayaran === 'sudah_dibayar' ? '✓ Lunas' : 'Menunggu Pembayaran'">
+                                        </span>
+                                    </div>
+                                    <div>
                                         <span class="text-slate-400 block font-medium">Nama Penerima:</span>
                                         <span class="font-bold text-slate-900 mt-0.5 block" x-text="activeOrder.nama_penerima"></span>
                                     </div>
@@ -193,13 +200,17 @@
                     <td class="py-4 px-6 text-slate-600 text-[11px]">
                         ${o.metode_pembayaran}
                     </td>
-                    <td class="py-4 px-6">
-                        <select onchange="changeOrderStatus(${o.id}, this.value)" class="text-xs font-bold rounded-xl px-2.5 py-1.5 border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500">
+                    <td class="py-4 px-6 space-y-1.5">
+                        <select onchange="changeOrderStatus(${o.id}, this.value)" class="text-[11px] font-bold rounded-xl px-2 py-1 border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500 block w-full">
                             <option value="menunggu" ${o.status === 'menunggu' ? 'selected' : ''}>Menunggu Konfirmasi</option>
                             <option value="diproses" ${o.status === 'diproses' ? 'selected' : ''}>Diproses</option>
                             <option value="dikirim" ${o.status === 'dikirim' ? 'selected' : ''}>Dikirim</option>
                             <option value="selesai" ${o.status === 'selesai' ? 'selected' : ''}>Selesai</option>
                             <option value="dibatalkan" ${o.status === 'dibatalkan' ? 'selected' : ''}>Dibatalkan</option>
+                        </select>
+                        <select onchange="changePaymentStatus(${o.id}, this.value)" class="text-[10px] font-bold rounded-xl px-2 py-1 border ${o.status_pembayaran === 'sudah_dibayar' ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-rose-300 bg-rose-50 text-rose-800'} block w-full">
+                            <option value="belum_dibayar" ${o.status_pembayaran !== 'sudah_dibayar' ? 'selected' : ''}>❌ Belum Bayar</option>
+                            <option value="sudah_dibayar" ${o.status_pembayaran === 'sudah_dibayar' ? 'selected' : ''}>✅ Sudah Bayar (Lunas)</option>
                         </select>
                     </td>
                     <td class="py-4 px-6 text-center">
@@ -223,6 +234,17 @@
                 o.status = newStatus;
                 Store.saveOrders(orders);
                 Store.toast(`Status pesanan ${o.kode_pesanan} diubah ke: ${newStatus.toUpperCase()}`, 'success');
+            }
+        }
+
+        function changePaymentStatus(orderId, newStatus) {
+            let orders = Store.getOrders();
+            const o = orders.find(item => item.id == orderId);
+            if (o) {
+                o.status_pembayaran = newStatus;
+                Store.saveOrders(orders);
+                Store.toast(`Status pembayaran ${o.kode_pesanan} diubah ke: ${newStatus === 'sudah_dibayar' ? 'LUNAS' : 'BELUM BAYAR'}`, 'success');
+                renderAdminOrdersTable();
             }
         }
 

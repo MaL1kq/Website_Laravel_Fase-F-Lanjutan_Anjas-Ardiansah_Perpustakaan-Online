@@ -27,23 +27,45 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Left: Order Details & Update Status -->
         <div class="lg:col-span-8 space-y-6">
-            <!-- Status Update Box -->
+            <!-- Status & Payment Update Box -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm">
-                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Pembaruan Status Transaksi</h2>
-                <form action="{{ route('admin.pesanan.status', $pesanan->id) }}" method="POST" class="flex flex-col sm:flex-row items-center gap-3">
+                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4 flex items-center">
+                    <i class="fa-solid fa-sliders text-indigo-600 mr-2"></i> Pembaruan Status Transaksi & Pembayaran
+                </h2>
+                <form action="{{ route('admin.pesanan.status', $pesanan->id) }}" method="POST" class="space-y-4">
                     @csrf
-                    <div class="w-full sm:flex-1">
-                        <select name="status" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
-                            <option value="menunggu_pembayaran" {{ $pesanan->status === 'menunggu_pembayaran' ? 'selected' : '' }}>Menunggu Pembayaran</option>
-                            <option value="diproses" {{ $pesanan->status === 'diproses' ? 'selected' : '' }}>Sedang Diproses (Kemas Buku)</option>
-                            <option value="dikirim" {{ $pesanan->status === 'dikirim' ? 'selected' : '' }}>Dalam Pengiriman Kurir</option>
-                            <option value="selesai" {{ $pesanan->status === 'selesai' ? 'selected' : '' }}>Selesai (Pesanan Diterima)</option>
-                            <option value="dibatalkan" {{ $pesanan->status === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan (Kembalikan Stok)</option>
-                        </select>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                <i class="fa-solid fa-box mr-1 text-slate-400"></i> Status Pesanan
+                            </label>
+                            <select name="status" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
+                                <option value="menunggu_pembayaran" {{ $pesanan->status === 'menunggu_pembayaran' ? 'selected' : '' }}>Menunggu Pembayaran</option>
+                                <option value="diproses" {{ $pesanan->status === 'diproses' ? 'selected' : '' }}>Sedang Diproses (Kemas Buku)</option>
+                                <option value="dikirim" {{ $pesanan->status === 'dikirim' ? 'selected' : '' }}>Dalam Pengiriman Kurir</option>
+                                <option value="selesai" {{ $pesanan->status === 'selesai' ? 'selected' : '' }}>Selesai (Pesanan Diterima)</option>
+                                <option value="dibatalkan" {{ $pesanan->status === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan (Kembalikan Stok)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                <i class="fa-solid fa-money-bill-wave mr-1 text-emerald-500"></i> Status Penerimaan Pembayaran
+                            </label>
+                            <select name="status_pembayaran" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                                <option value="belum_dibayar" {{ $pesanan->status_pembayaran === 'belum_dibayar' ? 'selected' : '' }}>
+                                    ❌ Belum Terima Pembayaran (Belum Lunas)
+                                </option>
+                                <option value="sudah_dibayar" {{ $pesanan->status_pembayaran === 'sudah_dibayar' ? 'selected' : '' }}>
+                                    ✅ Sudah Terima Pembayaran (Lunas)
+                                </option>
+                            </select>
+                        </div>
                     </div>
-                    <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-200 transition">
-                        Simpan Perubahan Status
-                    </button>
+                    <div class="flex justify-end pt-1">
+                        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-200 transition flex items-center justify-center">
+                            <i class="fa-solid fa-check mr-2"></i> Simpan Perubahan Status
+                        </button>
+                    </div>
                 </form>
             </div>
 
@@ -118,13 +140,30 @@
 
             <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm">
                 <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4">Metode & Status</h3>
-                <div class="space-y-3 text-xs">
+                <div class="space-y-3.5 text-xs">
                     <div>
                         <span class="text-slate-400 block font-medium">Metode Pembayaran</span>
                         <p class="font-bold text-indigo-700 mt-0.5">{{ $pesanan->metode_pembayaran }}</p>
                     </div>
-                    <div>
-                        <span class="text-slate-400 block font-medium">Status Pesanan Saat Ini</span>
+
+                    <div class="pt-2 border-t border-slate-100">
+                        <span class="text-slate-400 block font-medium">Status Pembayaran</span>
+                        @if($pesanan->status_pembayaran === 'sudah_dibayar')
+                            <span class="inline-flex items-center mt-1 px-3 py-1 rounded-full border text-xs font-bold bg-emerald-100 text-emerald-800 border-emerald-200">
+                                <i class="fa-solid fa-circle-check mr-1.5 text-emerald-600"></i> Sudah Diterima (Lunas)
+                            </span>
+                            @if($pesanan->tanggal_pembayaran)
+                                <p class="text-[11px] text-slate-400 mt-1">Diverifikasi: {{ $pesanan->tanggal_pembayaran->translatedFormat('d M Y, H:i') }}</p>
+                            @endif
+                        @else
+                            <span class="inline-flex items-center mt-1 px-3 py-1 rounded-full border text-xs font-bold bg-rose-100 text-rose-800 border-rose-200">
+                                <i class="fa-solid fa-clock mr-1.5 text-rose-600"></i> Belum Diterima (Menunggu Pembayaran)
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100">
+                        <span class="text-slate-400 block font-medium">Status Pengiriman Pesanan</span>
                         <span class="inline-block mt-1 px-3 py-1 rounded-full border text-xs font-bold {{ $pesanan->status_badge_class }}">
                             {{ $pesanan->status_label }}
                         </span>

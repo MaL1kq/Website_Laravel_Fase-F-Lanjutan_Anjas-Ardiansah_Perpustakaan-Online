@@ -52,6 +52,7 @@ class PesananAdminController extends Controller
     {
         $request->validate([
             'status' => 'required|in:menunggu_pembayaran,diproses,dikirim,selesai,dibatalkan',
+            'status_pembayaran' => 'nullable|in:belum_dibayar,sudah_dibayar',
         ]);
 
         $pesanan = Pesanan::with('detail.buku')->findOrFail($id);
@@ -76,9 +77,20 @@ class PesananAdminController extends Controller
             }
         }
 
-        $pesanan->update(['status' => $newStatus]);
+        $updateData = ['status' => $newStatus];
 
-        return back()->with('success', 'Status pesanan ' . $pesanan->kode_pesanan . ' berhasil diubah menjadi ' . $pesanan->status_label . '.');
+        if ($request->filled('status_pembayaran')) {
+            $updateData['status_pembayaran'] = $request->status_pembayaran;
+            if ($request->status_pembayaran === 'sudah_dibayar' && !$pesanan->tanggal_pembayaran) {
+                $updateData['tanggal_pembayaran'] = now();
+            } elseif ($request->status_pembayaran === 'belum_dibayar') {
+                $updateData['tanggal_pembayaran'] = null;
+            }
+        }
+
+        $pesanan->update($updateData);
+
+        return back()->with('success', 'Status pesanan ' . $pesanan->kode_pesanan . ' dan status pembayaran berhasil diperbarui.');
     }
 
     public function cetak($id)

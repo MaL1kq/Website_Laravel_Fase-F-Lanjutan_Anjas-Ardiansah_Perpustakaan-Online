@@ -50,10 +50,19 @@
                 <span class="text-xs uppercase tracking-widest font-bold text-indigo-600">INVOICE RESMI</span>
                 <p class="text-xl font-black text-slate-900 font-mono mt-1">{{ $pesanan->kode_pesanan }}</p>
                 <p class="text-xs text-slate-500 mt-1">Tanggal: {{ $pesanan->created_at->isoFormat('D MMMM Y, HH:mm') }} WIB</p>
-                <div class="mt-2">
+                <div class="mt-2 flex justify-end items-center space-x-1.5">
                     <span class="inline-block px-3 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-800 border border-slate-200 uppercase">
                         {{ $pesanan->status_label }}
                     </span>
+                    @if($pesanan->status_pembayaran === 'sudah_dibayar')
+                        <span class="inline-block px-3 py-1 text-[11px] font-extrabold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase tracking-wider">
+                            ✓ LUNAS
+                        </span>
+                    @else
+                        <span class="inline-block px-3 py-1 text-[11px] font-extrabold rounded-md bg-rose-100 text-rose-800 border border-rose-300 uppercase tracking-wider">
+                            BELUM LUNAS
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>
@@ -108,8 +117,11 @@
         <!-- Total Calculation -->
         <div class="border-t-2 border-slate-800 pt-4 flex justify-between items-start text-xs">
             <div class="max-w-xs text-slate-500 leading-relaxed">
-                <span class="font-bold text-slate-700 block mb-1">Metode Pembayaran:</span>
+                <span class="font-bold text-slate-700 block mb-1">Metode & Status Pembayaran:</span>
                 <p class="font-bold text-indigo-600">{{ $pesanan->metode_pembayaran }}</p>
+                <p class="text-xs font-bold mt-1 {{ $pesanan->status_pembayaran === 'sudah_dibayar' ? 'text-emerald-600' : 'text-rose-600' }}">
+                    Status: {{ $pesanan->status_pembayaran === 'sudah_dibayar' ? 'Sudah Diterima (LUNAS)' : 'Menunggu Pembayaran' }}
+                </p>
                 <p class="text-[11px] text-slate-400 mt-2">Terima kasih atas pembelian Anda di PerpusDigital. Buku yang dibeli tidak dapat ditukar kembali kecuali terjadi kerusakan cetak.</p>
             </div>
             <div class="w-64 space-y-2 text-right">

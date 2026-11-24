@@ -271,6 +271,7 @@ const DEFAULT_ORDERS = [
         user_name: 'Siti Nurhaliza',
         total_harga: 196000,
         status: 'diproses',
+        status_pembayaran: 'sudah_dibayar',
         metode_pembayaran: 'Payment at Delivery (Transfer Bank BCA)',
         nama_penerima: 'Siti Nurhaliza',
         no_telepon: '087812345678',
@@ -288,6 +289,7 @@ const DEFAULT_ORDERS = [
         user_name: 'Andi Pratama',
         total_harga: 85000,
         status: 'selesai',
+        status_pembayaran: 'sudah_dibayar',
         metode_pembayaran: 'Payment at Delivery (QRIS)',
         nama_penerima: 'Andi Pratama',
         no_telepon: '089912345678',
@@ -556,6 +558,7 @@ const Store = {
             user_name: orderData.nama_penerima,
             total_harga: orderData.total_harga,
             status: 'menunggu', // Menunggu Konfirmasi (BNSP)
+            status_pembayaran: 'belum_dibayar',
             metode_pembayaran: orderData.metode_pembayaran || 'Payment at Delivery (Pembayaran sebelum dikirim)',
             nama_penerima: orderData.nama_penerima,
             no_telepon: orderData.no_telepon,

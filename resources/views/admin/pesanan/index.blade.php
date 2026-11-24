@@ -91,10 +91,23 @@
                             <td class="px-5 py-4 whitespace-nowrap text-xs font-medium text-slate-700">
                                 {{ $item->metode_pembayaran }}
                             </td>
-                            <td class="px-5 py-4 whitespace-nowrap">
-                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border {{ $item->status_badge_class }}">
-                                    {{ $item->status_label }}
-                                </span>
+                            <td class="px-5 py-4 whitespace-nowrap space-y-1">
+                                <div>
+                                    <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border {{ $item->status_badge_class }}">
+                                        {{ $item->status_label }}
+                                    </span>
+                                </div>
+                                <div>
+                                    @if($item->status_pembayaran === 'sudah_dibayar')
+                                        <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            <i class="fa-solid fa-circle-check text-[9px] mr-1"></i> Lunas
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                                            <i class="fa-solid fa-clock text-[9px] mr-1"></i> Belum Bayar
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-5 py-4 whitespace-nowrap text-right space-x-2">
                                 <a href="{{ route('admin.pesanan.show', $item->id) }}" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 font-bold text-[11px] transition shadow-sm">

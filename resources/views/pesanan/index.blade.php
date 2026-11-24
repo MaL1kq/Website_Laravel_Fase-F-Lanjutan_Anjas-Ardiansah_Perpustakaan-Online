@@ -31,10 +31,19 @@
                                 <i class="fa-regular fa-clock mr-1"></i> {{ $item->created_at->isoFormat('D MMMM Y, HH:mm') }} WIB
                             </span>
                         </div>
-                        <div>
+                        <div class="flex items-center space-x-2">
                             <span class="text-xs font-bold px-3 py-1 rounded-full border {{ $item->status_badge_class }}">
                                 {{ $item->status_label }}
                             </span>
+                            @if($item->status_pembayaran === 'sudah_dibayar')
+                                <span class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center">
+                                    <i class="fa-solid fa-circle-check mr-1 text-[11px]"></i> Lunas
+                                </span>
+                            @else
+                                <span class="text-xs font-bold px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 inline-flex items-center">
+                                    <i class="fa-solid fa-clock mr-1 text-[11px]"></i> Menunggu Verifikasi
+                                </span>
+                            @endif
                         </div>
                     </div>
 
