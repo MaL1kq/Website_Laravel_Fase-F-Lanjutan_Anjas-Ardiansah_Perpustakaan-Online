@@ -29,38 +29,117 @@
         <div class="lg:col-span-8 space-y-6">
             <!-- Status & Payment Update Box -->
             <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm">
-                <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4 flex items-center">
-                    <i class="fa-solid fa-sliders text-indigo-600 mr-2"></i> Pembaruan Status Transaksi & Pembayaran
-                </h2>
-                <form action="{{ route('admin.pesanan.status', $pesanan->id) }}" method="POST" class="space-y-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center">
+                        <i class="fa-solid fa-sliders text-indigo-600 mr-2"></i> Pembaruan Status Transaksi & Pembayaran
+                    </h2>
+                    <span class="inline-flex items-center text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                        <i class="fa-solid fa-shield-halved text-indigo-500 mr-1.5"></i> Validasi Terproteksi
+                    </span>
+                </div>
+
+                <form action="{{ route('admin.pesanan.status', $pesanan->id) }}" method="POST"
+                      x-data="{
+                          statusPesanan: '{{ $pesanan->status }}',
+                          statusPembayaran: '{{ $pesanan->status_pembayaran ?? 'belum_dibayar' }}',
+                          pesanSinkronisasi: '',
+                          updateStatusPesanan(val) {
+                              this.statusPesanan = val;
+                              if (val === 'dikirim' || val === 'selesai') {
+                                  if (this.statusPembayaran !== 'sudah_dibayar') {
+                                      this.statusPembayaran = 'sudah_dibayar';
+                                      this.pesanSinkronisasi = 'Status pembayaran otomatis disesuaikan menjadi Lunas karena pesanan berstatus ' + (val === 'dikirim' ? 'Dalam Pengiriman' : 'Selesai') + '.';
+                                  } else {
+                                      this.pesanSinkronisasi = '';
+                                  }
+                              } else if (val === 'menunggu_pembayaran') {
+                                  if (this.statusPembayaran === 'sudah_dibayar') {
+                                      this.statusPembayaran = 'belum_dibayar';
+                                      this.pesanSinkronisasi = 'Status pembayaran disesuaikan menjadi Belum Lunas karena pesanan kembali ke tahap Menunggu Pembayaran.';
+                                  } else {
+                                      this.pesanSinkronisasi = '';
+                                  }
+                              } else {
+                                  this.pesanSinkronisasi = '';
+                              }
+                          },
+                          updateStatusPembayaran(val) {
+                              this.statusPembayaran = val;
+                              if (val === 'belum_dibayar') {
+                                  if (this.statusPesanan === 'dikirim' || this.statusPesanan === 'selesai') {
+                                      this.statusPesanan = 'menunggu_pembayaran';
+                                      this.pesanSinkronisasi = 'Status pesanan otomatis dialihkan ke Menunggu Pembayaran karena pembayaran berstatus Belum Lunas.';
+                                  } else {
+                                      this.pesanSinkronisasi = '';
+                                  }
+                              } else if (val === 'sudah_dibayar') {
+                                  if (this.statusPesanan === 'menunggu_pembayaran') {
+                                      this.statusPesanan = 'diproses';
+                                      this.pesanSinkronisasi = 'Status pesanan otomatis dinaikkan ke Sedang Diproses (Kemas Buku) karena pembayaran telah diterima.';
+                                  } else {
+                                      this.pesanSinkronisasi = '';
+                                  }
+                              }
+                          }
+                      }"
+                      @submit="
+                          if ((statusPesanan === 'dikirim' || statusPesanan === 'selesai') && statusPembayaran !== 'sudah_dibayar') {
+                              $event.preventDefault();
+                              alert('Pesanan tidak dapat dikirim atau diselesaikan sebelum pembayaran diverifikasi lunas.');
+                          }
+                      "
+                      class="space-y-4">
                     @csrf
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                                 <i class="fa-solid fa-box mr-1 text-slate-400"></i> Status Pesanan
                             </label>
-                            <select name="status" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
-                                <option value="menunggu_pembayaran" {{ $pesanan->status === 'menunggu_pembayaran' ? 'selected' : '' }}>Menunggu Pembayaran</option>
-                                <option value="diproses" {{ $pesanan->status === 'diproses' ? 'selected' : '' }}>Sedang Diproses (Kemas Buku)</option>
-                                <option value="dikirim" {{ $pesanan->status === 'dikirim' ? 'selected' : '' }}>Dalam Pengiriman Kurir</option>
-                                <option value="selesai" {{ $pesanan->status === 'selesai' ? 'selected' : '' }}>Selesai (Pesanan Diterima)</option>
-                                <option value="dibatalkan" {{ $pesanan->status === 'dibatalkan' ? 'selected' : '' }}>Dibatalkan (Kembalikan Stok)</option>
+                            <select name="status"
+                                    x-model="statusPesanan"
+                                    @change="updateStatusPesanan($event.target.value)"
+                                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
+                                <option value="menunggu_pembayaran">Menunggu Pembayaran</option>
+                                <option value="diproses">Sedang Diproses (Kemas Buku)</option>
+                                <option value="dikirim">Dalam Pengiriman Kurir</option>
+                                <option value="selesai">Selesai (Pesanan Diterima)</option>
+                                <option value="dibatalkan">Dibatalkan (Kembalikan Stok)</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                                 <i class="fa-solid fa-money-bill-wave mr-1 text-emerald-500"></i> Status Penerimaan Pembayaran
                             </label>
-                            <select name="status_pembayaran" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
-                                <option value="belum_dibayar" {{ $pesanan->status_pembayaran === 'belum_dibayar' ? 'selected' : '' }}>
-                                    ❌ Belum Terima Pembayaran (Belum Lunas)
-                                </option>
-                                <option value="sudah_dibayar" {{ $pesanan->status_pembayaran === 'sudah_dibayar' ? 'selected' : '' }}>
-                                    ✅ Sudah Terima Pembayaran (Lunas)
-                                </option>
+                            <select name="status_pembayaran"
+                                    x-model="statusPembayaran"
+                                    @change="updateStatusPembayaran($event.target.value)"
+                                    class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                                <option value="belum_dibayar">Belum Terima Pembayaran (Belum Lunas)</option>
+                                <option value="sudah_dibayar">Sudah Terima Pembayaran (Lunas)</option>
                             </select>
                         </div>
                     </div>
+
+                    <!-- Notifikasi Sinkronisasi Otomatis Real-time -->
+                    <template x-if="pesanSinkronisasi">
+                        <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-xs text-indigo-900 flex items-start space-x-2.5 animate-fadeIn">
+                            <i class="fa-solid fa-arrows-rotate text-indigo-600 mt-0.5 flex-shrink-0"></i>
+                            <span x-text="pesanSinkronisasi" class="font-medium"></span>
+                        </div>
+                    </template>
+
+                    <!-- Indikator Proteksi Sistem -->
+                    <div class="p-3.5 rounded-xl text-xs border"
+                         :class="statusPembayaran === 'sudah_dibayar' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-amber-50 border-amber-200 text-amber-900'">
+                        <div class="flex items-start space-x-2.5">
+                            <i class="mt-0.5 text-sm" :class="statusPembayaran === 'sudah_dibayar' ? 'fa-solid fa-circle-check text-emerald-600' : 'fa-solid fa-shield-halved text-amber-600'"></i>
+                            <div>
+                                <span class="font-bold block" x-text="statusPembayaran === 'sudah_dibayar' ? 'Status Pembayaran: Terverifikasi Lunas' : 'Status Pembayaran: Belum Lunas'"></span>
+                                <span class="text-[11px] text-slate-600 block mt-0.5" x-text="statusPembayaran === 'sudah_dibayar' ? 'Pesanan aman dan siap untuk dikirim kurir atau diselesaikan.' : 'Sistem mengunci status pengiriman dan selesai agar pesanan tidak dapat dikirim sebelum pembayaran masuk.'"></span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex justify-end pt-1">
                         <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-200 transition flex items-center justify-center">
                             <i class="fa-solid fa-check mr-2"></i> Simpan Perubahan Status

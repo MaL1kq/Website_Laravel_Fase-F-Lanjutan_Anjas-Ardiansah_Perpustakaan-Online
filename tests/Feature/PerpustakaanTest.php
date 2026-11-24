@@ -446,5 +446,119 @@ class PerpustakaanTest extends TestCase
         $response->assertSessionHas('error');
         $this->assertDatabaseHas('users', ['id' => $this->peminjam->id]);
     }
+
+    public function test_proteksi_pesanan_tidak_dapat_dikirim_atau_selesai_jika_belum_lunas(): void
+    {
+        $this->actingAs($this->admin);
+
+        $pesanan = Pesanan::create([
+            'kode_pesanan' => 'INV-PROTEK-001',
+            'user_id' => $this->peminjam->id,
+            'total_harga' => 85000,
+            'status' => 'diproses',
+            'status_pembayaran' => 'belum_dibayar',
+            'metode_pembayaran' => 'Payment at Delivery',
+            'nama_penerima' => 'Budi Siswa',
+            'no_telepon' => '08123456789',
+            'alamat_pengiriman' => 'Jakarta',
+        ]);
+
+        // Coba paksa status selesai padahal status_pembayaran belum_dibayar
+        $responseSelesai = $this->post(route('admin.pesanan.status', $pesanan->id), [
+            'status' => 'selesai',
+            'status_pembayaran' => 'belum_dibayar',
+        ]);
+        $responseSelesai->assertSessionHas('error');
+        $this->assertEquals('diproses', $pesanan->fresh()->status);
+
+        // Coba paksa status dikirim padahal status_pembayaran belum_dibayar
+        $responseDikirim = $this->post(route('admin.pesanan.status', $pesanan->id), [
+            'status' => 'dikirim',
+            'status_pembayaran' => 'belum_dibayar',
+        ]);
+        $responseDikirim->assertSessionHas('error');
+        $this->assertEquals('diproses', $pesanan->fresh()->status);
+    }
+
+    public function test_proteksi_status_pembayaran_tidak_dapat_diubah_ke_belum_dibayar_jika_sudah_selesai(): void
+    {
+        $this->actingAs($this->admin);
+
+        $pesanan = Pesanan::create([
+            'kode_pesanan' => 'INV-PROTEK-002',
+            'user_id' => $this->peminjam->id,
+            'total_harga' => 85000,
+            'status' => 'selesai',
+            'status_pembayaran' => 'sudah_dibayar',
+            'tanggal_pembayaran' => now(),
+            'metode_pembayaran' => 'Transfer Bank BCA',
+            'nama_penerima' => 'Budi Siswa',
+            'no_telepon' => '08123456789',
+            'alamat_pengiriman' => 'Jakarta',
+        ]);
+
+        // Coba ubah pembayaran jadi belum_dibayar saat status sudah selesai
+        $response = $this->post(route('admin.pesanan.status', $pesanan->id), [
+            'status' => 'selesai',
+            'status_pembayaran' => 'belum_dibayar',
+        ]);
+        $response->assertSessionHas('error');
+        $this->assertEquals('sudah_dibayar', $pesanan->fresh()->status_pembayaran);
+    }
+
+    public function test_admin_dapat_menyelesaikan_pesanan_yang_sudah_lunas(): void
+    {
+        $this->actingAs($this->admin);
+
+        $pesanan = Pesanan::create([
+            'kode_pesanan' => 'INV-PROTEK-003',
+            'user_id' => $this->peminjam->id,
+            'total_harga' => 85000,
+            'status' => 'diproses',
+            'status_pembayaran' => 'belum_dibayar',
+            'metode_pembayaran' => 'Transfer Bank BCA',
+            'nama_penerima' => 'Budi Siswa',
+            'no_telepon' => '08123456789',
+            'alamat_pengiriman' => 'Jakarta',
+        ]);
+
+        // Ubah jadi selesai dengan status_pembayaran sudah_dibayar
+        $response = $this->post(route('admin.pesanan.status', $pesanan->id), [
+            'status' => 'selesai',
+            'status_pembayaran' => 'sudah_dibayar',
+        ]);
+        $response->assertSessionHas('success');
+        $fresh = $pesanan->fresh();
+        $this->assertEquals('selesai', $fresh->status);
+        $this->assertEquals('sudah_dibayar', $fresh->status_pembayaran);
+        $this->assertNotNull($fresh->tanggal_pembayaran);
+    }
+
+    public function test_sinkronisasi_otomatis_pembayaran_lunas_memajukan_status_menunggu_ke_diproses(): void
+    {
+        $this->actingAs($this->admin);
+
+        $pesanan = Pesanan::create([
+            'kode_pesanan' => 'INV-PROTEK-004',
+            'user_id' => $this->peminjam->id,
+            'total_harga' => 85000,
+            'status' => 'menunggu_pembayaran',
+            'status_pembayaran' => 'belum_dibayar',
+            'metode_pembayaran' => 'Transfer Bank BCA',
+            'nama_penerima' => 'Budi Siswa',
+            'no_telepon' => '08123456789',
+            'alamat_pengiriman' => 'Jakarta',
+        ]);
+
+        // Admin menandai sudah_dibayar tanpa sengaja lupa mengubah status (masih menunggu_pembayaran)
+        $response = $this->post(route('admin.pesanan.status', $pesanan->id), [
+            'status' => 'menunggu_pembayaran',
+            'status_pembayaran' => 'sudah_dibayar',
+        ]);
+        $response->assertSessionHas('success');
+        $fresh = $pesanan->fresh();
+        $this->assertEquals('diproses', $fresh->status);
+        $this->assertEquals('sudah_dibayar', $fresh->status_pembayaran);
+    }
 }
 

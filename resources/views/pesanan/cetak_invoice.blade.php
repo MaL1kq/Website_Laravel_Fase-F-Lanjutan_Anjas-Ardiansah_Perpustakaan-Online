@@ -56,7 +56,7 @@
                     </span>
                     @if($pesanan->status_pembayaran === 'sudah_dibayar')
                         <span class="inline-block px-3 py-1 text-[11px] font-extrabold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 uppercase tracking-wider">
-                            ✓ LUNAS
+                            LUNAS
                         </span>
                     @else
                         <span class="inline-block px-3 py-1 text-[11px] font-extrabold rounded-md bg-rose-100 text-rose-800 border border-rose-300 uppercase tracking-wider">

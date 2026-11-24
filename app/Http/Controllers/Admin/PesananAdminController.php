@@ -58,6 +58,36 @@ class PesananAdminController extends Controller
         $pesanan = Pesanan::with('detail.buku')->findOrFail($id);
         $oldStatus = $pesanan->status;
         $newStatus = $request->status;
+        $newPaymentStatus = $request->input('status_pembayaran', $pesanan->status_pembayaran ?? 'belum_dibayar');
+
+        // Proteksi 1: Pesanan tidak dapat dikirim atau diselesaikan jika pembayaran belum diterima (belum lunas)
+        if (in_array($newStatus, ['dikirim', 'selesai']) && $newPaymentStatus !== 'sudah_dibayar') {
+            return back()->with('error', 'Pesanan tidak dapat diubah ke status ' . ($newStatus === 'dikirim' ? 'Dalam Pengiriman' : 'Selesai') . ' karena pembayaran belum diterima (belum lunas). Silakan verifikasi penerimaan pembayaran terlebih dahulu.');
+        }
+
+        // Proteksi 2: Tidak dapat membatalkan status pembayaran (menjadi Belum Lunas) jika pesanan sedang dikirim atau sudah selesai
+        if ($newPaymentStatus === 'belum_dibayar' && in_array($newStatus, ['dikirim', 'selesai'])) {
+            return back()->with('error', 'Status pembayaran tidak dapat diubah ke Belum Lunas selama status pesanan masih Dalam Pengiriman atau Selesai.');
+        }
+
+        // Proteksi 3: Sinkronisasi cerdas jika pembayaran lunas tapi status masih menunggu_pembayaran
+        if ($newPaymentStatus === 'sudah_dibayar' && $newStatus === 'menunggu_pembayaran') {
+            $newStatus = 'diproses';
+        }
+
+        // Proteksi 4: Cek ketersediaan stok saat memulihkan pesanan dari status dibatalkan
+        if ($oldStatus === 'dibatalkan' && $newStatus !== 'dibatalkan') {
+            foreach ($pesanan->detail as $item) {
+                if ($item->buku && $item->buku->stok < $item->jumlah) {
+                    return back()->with('error', 'Gagal memulihkan pesanan: Stok buku "' . $item->buku->judul . '" tidak mencukupi (stok tersisa: ' . $item->buku->stok . ', dibutuhkan: ' . $item->jumlah . ').');
+                }
+            }
+            foreach ($pesanan->detail as $item) {
+                if ($item->buku) {
+                    $item->buku->decrement('stok', $item->jumlah);
+                }
+            }
+        }
 
         // Jika dibatalkan dari status aktif, kembalikan stok buku
         if ($newStatus === 'dibatalkan' && $oldStatus !== 'dibatalkan') {
@@ -68,24 +98,17 @@ class PesananAdminController extends Controller
             }
         }
 
-        // Jika dipulihkan dari dibatalkan kembali ke aktif, kurangi lagi stok
-        if ($oldStatus === 'dibatalkan' && $newStatus !== 'dibatalkan') {
-            foreach ($pesanan->detail as $item) {
-                if ($item->buku) {
-                    $item->buku->decrement('stok', $item->jumlah);
-                }
-            }
-        }
+        $updateData = [
+            'status' => $newStatus,
+            'status_pembayaran' => $newPaymentStatus,
+        ];
 
-        $updateData = ['status' => $newStatus];
-
-        if ($request->filled('status_pembayaran')) {
-            $updateData['status_pembayaran'] = $request->status_pembayaran;
-            if ($request->status_pembayaran === 'sudah_dibayar' && !$pesanan->tanggal_pembayaran) {
+        if ($newPaymentStatus === 'sudah_dibayar') {
+            if (!$pesanan->tanggal_pembayaran) {
                 $updateData['tanggal_pembayaran'] = now();
-            } elseif ($request->status_pembayaran === 'belum_dibayar') {
-                $updateData['tanggal_pembayaran'] = null;
             }
+        } else {
+            $updateData['tanggal_pembayaran'] = null;
         }
 
         $pesanan->update($updateData);
